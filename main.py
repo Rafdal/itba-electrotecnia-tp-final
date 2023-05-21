@@ -1,8 +1,28 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel
-
-# include button class
+from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout
 from frontend.button import Button
+from frontend.dropMenu import DropMenu
+from PyQt5.QtCore import Qt
+
+import numpy as np
+import matplotlib.pyplot as plt
+from frontend.rectPlot import RectPlot
+
+
+options = [
+    {
+        'name': 'Option 1',
+        'callback': lambda: print('Option 1')
+    },
+    {
+        'name': 'Option 2',
+        'callback': lambda: print('Option 2')
+    },
+    {
+        'name': 'Option 3',
+        'callback': lambda: print('Option 3')
+    }
+]
 
 class ExampleApp(QMainWindow):
     def __init__(self):
@@ -11,13 +31,32 @@ class ExampleApp(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('Example App')
-        self.setGeometry(100, 100, 500, 400)
+        self.setGeometry(100, 100, 800, 600)
+
+        hlayout = QHBoxLayout()
+        hlayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        vlayout = QVBoxLayout()
+        vlayout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         label = QLabel('Hello, PyQt5!', self)
-        label.move(150, 150)
-
         button = Button("Click Me!", self)
-        button.move(200, 200)
+        dropMenu = DropMenu(self, options)
+
+        hlayout.addWidget(label)
+        hlayout.addWidget(button)
+        hlayout.addWidget(dropMenu)
+
+        vlayout.addLayout(hlayout)
+
+        # Create a new RoundedRectPlot widget with a sine wave plot
+        x = np.linspace(0, 10, 100)
+        y = np.sin(x)
+        plotWidget = RectPlot(x, y, title='My Plot')
+        vlayout.addWidget(plotWidget)
+
+        central_widget = QWidget()
+        central_widget.setLayout(vlayout)
+        self.setCentralWidget(central_widget)
 
         self.show()
 
