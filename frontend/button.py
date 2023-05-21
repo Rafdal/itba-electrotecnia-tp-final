@@ -12,7 +12,7 @@ class Button(QPushButton):
 
     def __init__(self, text, parent=None, color="black", background_color = "white", radius=10,
                         shadow_color="grey", shadow_radius=9, hover_color="lightblue", 
-                        click_color="grey", padding=6):
+                        click_color="grey", padding=6, on_click=lambda: print("Button Clicked")):
         super().__init__(text, parent)
 
         self.setStyleSheet(f"""
@@ -37,7 +37,9 @@ class Button(QPushButton):
             }}
         """)
 
-        self.clicked.connect(self.on_click)
+        self.clicked.connect(self.on_click_callback)
+
+        self.on_click = on_click
 
         shadow = QGraphicsDropShadowEffect()
         shadow.setColor(QColor(shadow_color))
@@ -45,5 +47,5 @@ class Button(QPushButton):
         shadow.setBlurRadius(shadow_radius)
         self.setGraphicsEffect(shadow)
 
-    def on_click(self):
-        print("Button clicked!")
+    def on_click_callback(self):
+        self.on_click()

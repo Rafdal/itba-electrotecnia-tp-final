@@ -5,7 +5,6 @@ from frontend.dropMenu import DropMenu
 from PyQt5.QtCore import Qt
 
 import numpy as np
-import matplotlib.pyplot as plt
 from frontend.rectPlot import RectPlot
 
 
@@ -38,20 +37,27 @@ class ExampleApp(QMainWindow):
         vlayout = QVBoxLayout()
         vlayout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        label = QLabel('Hello, PyQt5!', self)
-        button = Button("Click Me!", self)
-        dropMenu = DropMenu(self, options)
-
-        hlayout.addWidget(label)
-        hlayout.addWidget(button)
-        hlayout.addWidget(dropMenu)
-
-        vlayout.addLayout(hlayout)
-
         # Create a new RoundedRectPlot widget with a sine wave plot
         x = np.linspace(0, 10, 100)
         y = np.sin(x)
         plotWidget = RectPlot(x, y, title='My Plot')
+
+        label = QLabel('Hello, PyQt5!', self)
+
+        button = Button("Center Plot", self, 
+            on_click = lambda: plotWidget.center_plot())
+        button2 = Button("Reset Plot", self, 
+            on_click = lambda: plotWidget.reset_plot())
+
+        dropMenu = DropMenu(self, options)
+
+        hlayout.addWidget(label)
+        hlayout.addWidget(button)
+        hlayout.addWidget(button2)
+        hlayout.addWidget(dropMenu)
+
+        vlayout.addLayout(hlayout)
+
         vlayout.addWidget(plotWidget)
 
         central_widget = QWidget()
