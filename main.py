@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout
 from frontend.button import Button
-from frontend.dropMenu import DropMenu
+from frontend.dropSwitchMenu import DropSwitchMenu
 from PyQt5.QtCore import Qt
 
 import numpy as np
@@ -49,7 +49,7 @@ class ExampleApp(QMainWindow):
         button2 = Button("Reset Plot", self, 
             on_click = lambda: plotWidget.reset_plot())
 
-        dropMenu = DropMenu(self, options)
+        dropMenu = DropSwitchMenu(self, options)
 
         hlayout.addWidget(label)
         hlayout.addWidget(button)

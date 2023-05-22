@@ -5,9 +5,9 @@ from PyQt5.QtGui import QColor
 
 from .button import Button
 
-class DropMenu(Button):
+class DropSwitchMenu(Button):
     def __init__(self, parent=None, options=[{'name': 'Option 1', 'callback': lambda: print('Option 1')}]):
-        super(DropMenu, self).__init__(options[0]['name'], parent)
+        super(DropSwitchMenu, self).__init__(options[0]['name'], parent)
         self.options = options
         self.menu = QMenu(self)
         self.setMenu(self.menu)

@@ -6,6 +6,24 @@ from matplotlib.patches import PathPatch
 
 
 class RectPlot(QWidget):
+    """
+    A custom widget that displays a rectangular plot.
+
+    Parameters
+    ----------
+    x : array-like
+        The x-coordinates of the data points.
+    y : array-like
+        The y-coordinates of the data points.
+    title : str, optional
+        The title of the plot. Default is an empty string.
+    logx : bool, optional
+        Whether to use a logarithmic scale for the x-axis. Default is False.
+    logy : bool, optional
+        Whether to use a logarithmic scale for the y-axis. Default is False.
+    draggable : bool, optional
+        Whether the plot can be dragged. Default is True.
+    """
     def __init__(self, x, y, title='', logx=False, logy=False, draggable=True):
         super().__init__()
 
