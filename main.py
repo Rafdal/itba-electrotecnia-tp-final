@@ -1,27 +1,8 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout
-from frontend.button import Button
-from frontend.dropSwitchMenu import DropSwitchMenu
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QTabWidget
 
-import numpy as np
-from frontend.rectPlot import RectPlot
-
-
-options = [
-    {
-        'name': 'Option 1',
-        'callback': lambda: print('Option 1')
-    },
-    {
-        'name': 'Option 2',
-        'callback': lambda: print('Option 2')
-    },
-    {
-        'name': 'Option 3',
-        'callback': lambda: print('Option 3')
-    }
-]
+from pages.filtersPage import FiltersPage
 
 class ExampleApp(QMainWindow):
     def __init__(self):
@@ -32,37 +13,21 @@ class ExampleApp(QMainWindow):
         self.setWindowTitle('Example App')
         self.setGeometry(100, 100, 800, 600)
 
-        hlayout = QHBoxLayout()
-        hlayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        vlayout = QVBoxLayout()
-        vlayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        tab_widget = QTabWidget()
+        self.setCentralWidget(tab_widget)
 
-        # Create a new RoundedRectPlot widget with a sine wave plot
-        x = np.linspace(0, 10, 100)
-        y = np.sin(x)
-        plotWidget = RectPlot(x, y, title='My Plot')
+        # create tabs
+        tab1 = QWidget()
+        tab2 = QWidget()
 
-        label = QLabel('Hello, PyQt5!', self)
+        # add tabs to tab widget
+        tab_widget.addTab(tab1, 'Tab 1')
+        tab_widget.addTab(tab2, 'Tab 2')
 
-        button = Button("Center Plot", self, 
-            on_click = lambda: plotWidget.center_plot())
-        button2 = Button("Reset Plot", self, 
-            on_click = lambda: plotWidget.reset_plot())
+        # add page
+        filtersPage = FiltersPage(self)
 
-        dropMenu = DropSwitchMenu(self, options)
-
-        hlayout.addWidget(label)
-        hlayout.addWidget(button)
-        hlayout.addWidget(button2)
-        hlayout.addWidget(dropMenu)
-
-        vlayout.addLayout(hlayout)
-
-        vlayout.addWidget(plotWidget)
-
-        central_widget = QWidget()
-        central_widget.setLayout(vlayout)
-        self.setCentralWidget(central_widget)
+        tab1.setLayout(filtersPage)
 
         self.show()
 
