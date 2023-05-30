@@ -5,7 +5,7 @@ from matplotlib.ticker import FuncFormatter
 from matplotlib import rcParams
 import numpy as np
 
-class RectPlot(QWidget):
+class RectPlotBase(QWidget):
     def __init__(self, x, y, title='', draggable=True, scale='linear', db=False):
         super().__init__()
 
@@ -20,9 +20,6 @@ class RectPlot(QWidget):
         self.initial_xlim = self.ax.get_xlim()
         self.initial_ylim = self.ax.get_ylim()
 
-        # Enable LaTeX rendering
-        rcParams['text.usetex'] = True
-
         if scale == 'linear':
             pass
         elif scale == 'log10':
@@ -33,7 +30,7 @@ class RectPlot(QWidget):
             raise ValueError(f'Invalid scale: {scale}')
         
         if db:
-            self.ax.yaxis.set_major_formatter(FuncFormatter(lambda y, t: f'{y}dB'))
+            self.ax.yaxis.set_major_formatter(FuncFormatter(lambda y, t: f'{y:.2f}dB'))
 
         # Set the plot title
         self.ax.set_title(title)
@@ -122,19 +119,30 @@ class RectPlot(QWidget):
 
         self.canvas.draw_idle()
 
-    def autoscale_plot(self):
-        print('autoscaling plot')
-        # Get the x and y data from the plot
-        x_data, y_data = [], []
+    def autoscale_x(self):
+        print('autoscaling x axis')
+        # Get the x data from the plot
+        x_data = []
         for line in self.ax.lines:
             x_data.extend(line.get_xdata())
-            y_data.extend(line.get_ydata())
 
-        # Set the plot limits based on the data range
+        # Set the x axis limits based on the data range
         if x_data:
             x_range = max(x_data) - min(x_data)
             x_margin = x_range * 0.05
             self.ax.set_xlim(min(x_data) - x_margin, max(x_data) + x_margin)
+
+        # Redraw the canvas
+        self.canvas.draw_idle()
+
+    def autoscale_y(self):
+        print('autoscaling y axis')
+        # Get the y data from the plot
+        y_data = []
+        for line in self.ax.lines:
+            y_data.extend(line.get_ydata())
+
+        # Set the y axis limits based on the data range
         if y_data:
             y_range = max(y_data) - min(y_data)
             y_margin = y_range * 0.05

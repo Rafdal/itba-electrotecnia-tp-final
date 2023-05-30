@@ -3,7 +3,7 @@ from frontend.button import Button
 from frontend.dropSwitchMenu import DropSwitchMenu
 from PyQt5.QtCore import Qt
 import numpy as np
-from frontend.rectPlot import RectPlot
+from frontend.rectPlotBase import RectPlotBase
 from frontend.slider import Slider
 
 from backend.filters import notch_filter
@@ -23,8 +23,10 @@ options = [
     }
 ]
 
+from scipy import signal
 
-class FiltersPage(QVBoxLayout):
+
+class FiltersPage(QWidget):
     def __init__(self, parent):
         super().__init__()
 
@@ -36,45 +38,55 @@ class FiltersPage(QVBoxLayout):
         vlayout = QVBoxLayout()
         vlayout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        # Create a new RoundedRectPlot widget with a sine wave plot
-        x = np.linspace(0, 6, 3000)
-        u_x = 10**x
-        y = np.abs(notch_filter(u_x, 300, 3))
-        y = 20 * np.log10(y)
+        n = 3000
+        x = np.linspace(0, 6, n)
+        wlog_x = 10**x
+        H = notch_filter(300, 3)
+        _, mag, phase = signal.bode(H, wlog_x, n)
+        y = mag
 
-        plotWidget = RectPlot(x, y, title='My Plot', scale='log10', db=True)
+        self.magPlotWidget = RectPlotBase(x, y, title='Ganancia dB', scale='log10', db=True)
+        self.phasePlotWidget = RectPlotBase(x, phase, title='Fase', scale='log10', db=False)
 
-        label = QLabel('Hello, PyQt5!', parent)
+        self.title = "Filter Editor"
 
         button = Button("Center Plot", parent, 
-            on_click = lambda: plotWidget.center_plot())
+            on_click = lambda: self.magPlotWidget.center_plot())
         button2 = Button("Reset Plot", parent, 
-            on_click = lambda: plotWidget.reset_plot())
-        button3 = Button("Autoscale Plot", parent,
-            on_click = lambda: plotWidget.autoscale_plot())
+            on_click = lambda: self.magPlotWidget.reset_plot())
+        button3 = Button("Autoscale X", parent,
+            on_click = lambda: self.magPlotWidget.autoscale_x())
+
+        button4 = Button("Autoscale Y", parent,
+                    on_click = lambda: self.magPlotWidget.autoscale_y())
 
         dropMenu = DropSwitchMenu(parent, options)
 
         slider = Slider(0, 4, 300, 20)
-        slider.value_changed.connect(lambda value: self.update_plot(plotWidget, value))
+        slider.value_changed.connect(lambda value: self.update_plot(value))
 
-        hlayout.addWidget(label)
         hlayout.addWidget(button)
         hlayout.addWidget(button2)
         hlayout.addWidget(button3)
+        hlayout.addWidget(button4)
         hlayout.addWidget(dropMenu)
         hlayout.addWidget(slider)
 
         vlayout.addLayout(hlayout)
 
-        vlayout.addWidget(plotWidget)    
+        vlayout.addWidget(self.magPlotWidget)    
+        vlayout.addWidget(self.phasePlotWidget)
 
-        self.addLayout(vlayout)
+        self.setLayout(vlayout)
 
-    def update_plot(self, plotWidget, value):
-        # Update the plot with the new slider value
-        x = np.linspace(0, 10, 1000)
-        u_x = 10**x
-        y = np.abs(notch_filter(u_x, 970, value))
-        y = 20 * np.log10(y)
-        plotWidget.update_plot(x, y)
+    def update_plot(self, value):
+        
+        n = 3000
+        x = np.linspace(0, 6, n)
+        wlog_x = 10**x
+        H = notch_filter(300, value)
+        _, mag, phase = signal.bode(H, wlog_x, n)
+        y = mag
+
+        self.magPlotWidget.update_plot(x, y)
+        self.phasePlotWidget.update_plot(x, phase)

@@ -3,6 +3,11 @@ from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QLabel, QVBoxLay
 from PyQt5.QtWidgets import QTabWidget
 
 from pages.filtersPage import FiltersPage
+from frontend.FunctionPlotNav import FunctionPlotNav
+
+# Enable LaTeX rendering
+import matplotlib as mpl
+# mpl.rcParams['text.usetex'] = True
 
 class ExampleApp(QMainWindow):
     def __init__(self):
@@ -11,23 +16,22 @@ class ExampleApp(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('Example App')
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 800, 800)
 
         tab_widget = QTabWidget()
         self.setCentralWidget(tab_widget)
 
         # create tabs
-        tab1 = QWidget()
+        filtersPage = FiltersPage(self)
         tab2 = QWidget()
+        # plotNav = FunctionPlotNav(self)
 
         # add tabs to tab widget
-        tab_widget.addTab(tab1, 'Tab 1')
+        tab_widget.addTab(filtersPage, filtersPage.title)
         tab_widget.addTab(tab2, 'Tab 2')
-
+        
         # add page
-        filtersPage = FiltersPage(self)
 
-        tab1.setLayout(filtersPage)
 
         self.show()
 
