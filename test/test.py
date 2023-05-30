@@ -1,31 +1,18 @@
-import numpy as np
-from scipy import signal
-import matplotlib.pyplot as plt
+from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QVBoxLayout
+from PyQt5.QtWidgets import QGraphicsDropShadowEffect
+from PyQt5.QtGui import QColor
 
-# Define the transfer function H(s)
-num = [1, 2]
-den = [1, 3, 2]
-H = signal.TransferFunction(num, den)
+app = QApplication([])
+window = QWidget()
 
-# Get the magnitude and phase of the transfer function
-w, mag, phase = signal.bode(H)
+# Create a QFrame with a border and rounded corners
+frame = QFrame(window)
 
-print("w: ", w)
 
-# plot w
-x = np.linspace(0, 10, len(w))
-plt.plot(x, w)
-plt.show()
+# Add the QFrame to the window
+layout = QVBoxLayout()
+layout.addWidget(frame)
+window.setLayout(layout)
 
-# Extract the numerator and denominator coefficients
-num, den = H.num, H.den
-
-# Create the Linear Time-Invariant system
-lti_sys = signal.lti(num, den)
-
-# Define the time vector and the input signal
-t = np.linspace(0, 10, 1000)
-x = np.sin(t)
-
-# Apply the filter to the signal
-tout, y, xout = signal.lsim(lti_sys, x, t)
+window.show()
+app.exec_()

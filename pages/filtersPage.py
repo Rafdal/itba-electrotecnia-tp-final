@@ -45,8 +45,8 @@ class FiltersPage(QWidget):
         _, mag, phase = signal.bode(H, wlog_x, n)
         y = mag
 
-        self.magPlotWidget = RectPlotBase(x, y, title='Ganancia dB', scale='log10', db=True)
-        self.phasePlotWidget = RectPlotBase(x, phase, title='Fase', scale='log10', db=False)
+        self.magPlotWidget = RectPlotBase(x, [y], title='Ganancia dB', scale='log10', db=True)
+        self.phasePlotWidget = RectPlotBase(x, [phase], title='Fase', scale='log10', db=False)
 
         self.title = "Filter Editor"
 
@@ -88,5 +88,5 @@ class FiltersPage(QWidget):
         _, mag, phase = signal.bode(H, wlog_x, n)
         y = mag
 
-        self.magPlotWidget.update_plot(x, y)
-        self.phasePlotWidget.update_plot(x, phase)
+        self.magPlotWidget.update_plot(x, [y])
+        self.phasePlotWidget.update_plot(x, [phase])

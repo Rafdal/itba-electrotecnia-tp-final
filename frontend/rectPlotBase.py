@@ -6,14 +6,16 @@ from matplotlib import rcParams
 import numpy as np
 
 class RectPlotBase(QWidget):
-    def __init__(self, x, y, title='', draggable=True, scale='linear', db=False):
+    def __init__(self, x, yList, title='', draggable=True, scale='linear', db=False):
         super().__init__()
 
         # Create a figure and add the plot to it
         self.figure = Figure()
         self.canvas = FigureCanvasQTAgg(self.figure)
         self.ax = self.figure.add_subplot(111)
-        self.plot = self.ax.plot(x, y)[0]
+        for y in yList:
+            self.ax.plot(x, y)[0]
+        # self.plot = self.ax.plot(x, y)[0]
         self._dragging = False
 
         # Save the initial plot parameters
@@ -67,9 +69,13 @@ class RectPlotBase(QWidget):
     def on_release(self, event):
         self._dragging = False
 
-    def update_plot(self, x, y):
-        self.plot.set_data(x, y)
-        self.canvas.draw_idle()
+    def update_plot(self, x, yList):
+        for i, y in enumerate(yList):
+            if i == 0:
+                self.plot.set_data(x, y)
+            else:
+                self.plot.set_ydata(y)
+            self.canvas.draw_idle()
 
     def on_motion(self, event):
         if event is None:

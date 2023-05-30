@@ -7,7 +7,6 @@ from frontend.FunctionPlotNav import FunctionPlotNav
 
 # Enable LaTeX rendering
 import matplotlib as mpl
-# mpl.rcParams['text.usetex'] = True
 
 class ExampleApp(QMainWindow):
     def __init__(self):
@@ -24,11 +23,11 @@ class ExampleApp(QMainWindow):
         # create tabs
         filtersPage = FiltersPage(self)
         tab2 = QWidget()
-        # plotNav = FunctionPlotNav(self)
+        plotNav = FunctionPlotNav(self)
 
         # add tabs to tab widget
         tab_widget.addTab(filtersPage, filtersPage.title)
-        tab_widget.addTab(tab2, 'Tab 2')
+        tab_widget.addTab(plotNav, 'Tab 2')
         
         # add page
 
