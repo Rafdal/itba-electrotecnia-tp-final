@@ -6,7 +6,7 @@ import numpy as np
 from frontend.rectPlotBase import RectPlotBase
 from frontend.slider import Slider
 
-from backend.filters import Filter, NotchFilter
+from backend.filters import *
 
 from frontend.FunctionPlotNav import FunctionPlotNav
 
@@ -27,16 +27,24 @@ class FiltersPage(QWidget):
         vlayout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.slider = Slider(0, 4)
-        self.slider2 = Slider(-1, 5)
-        self.slider.slider.setValue(24)
-        self.slider2.slider.setValue(300)
+        self.slider2 = Slider(0, 4)
+        self.slider3 = Slider(0, 4)
+        self.slider4 = Slider(0, 4)
+        self.slider.slider.setValue(10)
+        self.slider2.slider.setValue(11)
+        self.slider3.slider.setValue(12)
+        self.slider4.slider.setValue(13)
         self.slider.value_changed.connect(self.update_plot)
         self.slider2.value_changed.connect(self.update_plot)
+        self.slider3.value_changed.connect(self.update_plot)
+        self.slider4.value_changed.connect(self.update_plot)
 
         self.notch = NotchFilter(300.0, 2.0)
+        self.filter2 = HighPassNotch(300.0, 2.0, 300.0, 2.0)
 
         self.filters = [
-            self.notch,
+            # self.notch,
+            self.filter2
         ]
 
         def getMagData():
@@ -60,6 +68,8 @@ class FiltersPage(QWidget):
 
         vlayout.addWidget(self.slider)
         vlayout.addWidget(self.slider2)
+        vlayout.addWidget(self.slider3)
+        vlayout.addWidget(self.slider4)
 
         def autoscale():
             self.magPlotWidget.rectPlot.autoscale_x()
@@ -88,13 +98,21 @@ class FiltersPage(QWidget):
         x = np.linspace(x0, x1, n)
         wlog_x = base**x
 
-        self.notch.w0 = 10.0 ** self.slider2.get_value()
-        self.notch.xi = self.slider.get_value()
+        self.filter2.params['w0'].value = 10.0 ** self.slider.get_value()
+        # if 'xi' in self.filter2.params:
+        self.filter2.params['xi0'].value = self.slider2.get_value()
+
+        self.filter2.params['wz'].value = 10.0 ** self.slider3.get_value()
+        # if 'xi' in self.filter2.params:
+        self.filter2.params['xiz'].value = self.slider4.get_value()
 
         F = Filter()
         for f in self.filters:
             F = F * f
-        _, mag, phase = signal.bode(F.transfer(), wlog_x, n)
+
+        H = F.transfer()
+        _, mag, phase = signal.bode(H, wlog_x, n)
+        
 
         return x, mag, phase
 

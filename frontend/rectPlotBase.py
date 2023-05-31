@@ -5,6 +5,7 @@ from matplotlib.ticker import FuncFormatter
 from matplotlib import rcParams
 import numpy as np
 from PyQt5.QtCore import Qt
+import math
 
 class RectPlotBase(QWidget):
     def __init__(self, x, yList, draggable=True, scale='linear', postFix=None):
@@ -51,6 +52,7 @@ class RectPlotBase(QWidget):
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         layout.addWidget(self.canvas)
+        layout.setStretch(0, 1)  # Set the vertical stretch factor to 1
         self.setLayout(layout)
 
     # Format x-axis tick labels in log scale
@@ -127,7 +129,6 @@ class RectPlotBase(QWidget):
         self.canvas.draw_idle()
 
     def autoscale_x(self):
-        print('autoscaling x axis')
         # Get the x data from the plot
         x_data = []
         for line in self.ax.lines:
@@ -143,7 +144,6 @@ class RectPlotBase(QWidget):
         self.canvas.draw_idle()
 
     def autoscale_y(self):
-        print('autoscaling y axis')
         # Get the y data from the plot
         y_data = []
         for line in self.ax.lines:
@@ -151,9 +151,14 @@ class RectPlotBase(QWidget):
 
         # Set the y axis limits based on the data range
         if y_data:
-            y_range = max(y_data) - min(y_data)
-            y_margin = y_range * 0.05
-            self.ax.set_ylim(min(y_data) - y_margin, max(y_data) + y_margin)
+            # remove Inf or NaN
+            y_data = [y for y in y_data if not math.isnan(y) and not math.isinf(y)]
+            if(len(y_data) >= 5):
+                y_min = min(y_data)
+                y_max = max(y_data)
+                y_range = y_max - y_min
+                y_margin = y_range * 0.05
+                self.ax.set_ylim(y_min - y_margin, y_max + y_margin)
 
         # Redraw the canvas
         self.canvas.draw_idle()

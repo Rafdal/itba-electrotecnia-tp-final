@@ -4,9 +4,13 @@ from PyQt5.QtWidgets import QTabWidget
 
 from pages.filtersPage import FiltersPage
 from frontend.FunctionPlotNav import FunctionPlotNav
+from frontend.rectPlotBase import RectPlotBase
+from frontend.DynamicSettings import DynamicSettings
 
 import matplotlib as mpl
 import numpy as np
+
+from backend.filters import Param
 
 class ExampleApp(QMainWindow):
     def __init__(self):
@@ -31,9 +35,26 @@ class ExampleApp(QMainWindow):
         tab2 = QWidget()
         plotNav = FunctionPlotNav("Title", getData=getData, dragable=True)
 
+        # create plot
+        x = np.linspace(0, 6 * np.pi, 100)
+        y = 4*np.sin(x) + 0.6
+        rectPlot = RectPlotBase(x, [y])
+
+        # Create Param dict
+        params = {
+            "param1": Param(0, "A", "ms"),
+            "param2": Param(0, "B", "asd"),
+            "param3": Param(0, "C", "."),
+        }
+
+        # Create dynamic settings
+        dynamicSettings = DynamicSettings(params)
+
         # add tabs to tab widget
         tab_widget.addTab(filtersPage, filtersPage.title)
         tab_widget.addTab(plotNav, 'Tab 2')
+        tab_widget.addTab(rectPlot, 'Tab 3')
+        tab_widget.addTab(dynamicSettings, 'Tab 4')
         
         # set tab content background color
         tab_widget.setStyleSheet("QWidget { background-color: #f5f5f5 }")
