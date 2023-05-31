@@ -23,7 +23,7 @@ class ExampleApp(QMainWindow):
         # Create x and y data getter
         def getData():
             x = np.linspace(0, 6 * np.pi, 100)
-            y = 4*np.sin(x)+0.6
+            y = 4*np.sin(x) + 0.6
             return x, [y]
 
         # create tabs

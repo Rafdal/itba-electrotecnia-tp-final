@@ -7,7 +7,7 @@ import numpy as np
 from PyQt5.QtCore import Qt
 
 class RectPlotBase(QWidget):
-    def __init__(self, x, yList, draggable=True, scale='linear', db=False):
+    def __init__(self, x, yList, draggable=True, scale='linear', postFix=None):
         super().__init__()
 
         # Create a figure and add the plot to it
@@ -34,8 +34,8 @@ class RectPlotBase(QWidget):
         else:
             raise ValueError(f'Invalid scale: {scale}')
         
-        if db:
-            self.ax.yaxis.set_major_formatter(FuncFormatter(lambda y, t: f'{y:.2f}dB'))
+        if postFix != None:
+            self.ax.yaxis.set_major_formatter(FuncFormatter(lambda y, t: f'{y:.2f}{postFix}'))
 
         # add log grid
         self.ax.grid(True, which='major', axis='both', linestyle='--', linewidth=0.5)

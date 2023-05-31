@@ -49,8 +49,8 @@ class FiltersPage(QWidget):
             x, _, phase = self.computePlot()
             return x, [phase]
 
-        self.magPlotWidget = FunctionPlotNav("Magnitude", getData=getMagData,dragable=True, scale='log10', db=True)
-        self.phasePlotWidget = FunctionPlotNav("Phase", getData=getPhaseData, dragable=True, scale='log10', db=False)
+        self.magPlotWidget = FunctionPlotNav("Magnitude", getData=getMagData,dragable=True, scale='log10', postFix="dB")
+        self.phasePlotWidget = FunctionPlotNav("Phase", getData=getPhaseData, dragable=True, scale='log10', postFix="°")
 
         self.magPlotWidget.setMinimumHeight(300)
         self.phasePlotWidget.setMinimumHeight(300)
