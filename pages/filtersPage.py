@@ -6,87 +6,100 @@ import numpy as np
 from frontend.rectPlotBase import RectPlotBase
 from frontend.slider import Slider
 
-from backend.filters import notch_filter
+from backend.filters import Filter, NotchFilter
 
-options = [
-    {
-        'name': 'Option 1',
-        'callback': lambda: print('Option 1')
-    },
-    {
-        'name': 'Option 2',
-        'callback': lambda: print('Option 2')
-    },
-    {
-        'name': 'Option 3',
-        'callback': lambda: print('Option 3')
-    }
-]
+from frontend.FunctionPlotNav import FunctionPlotNav
 
 from scipy import signal
 
 
 class FiltersPage(QWidget):
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         super().__init__()
 
         # Create a layout for the widget
-        vlayout = QVBoxLayout()
-
         hlayout = QHBoxLayout()
         hlayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        hlayout.setStretch(0, 1)
+        vlayoutPlots = QVBoxLayout()
+        vlayoutPlots.setAlignment(Qt.AlignmentFlag.AlignTop)
         vlayout = QVBoxLayout()
         vlayout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        n = 3000
-        x = np.linspace(0, 6, n)
-        wlog_x = 10**x
-        H = notch_filter(300, 3)
-        _, mag, phase = signal.bode(H, wlog_x, n)
-        y = mag
+        self.slider = Slider(0, 4)
+        self.slider2 = Slider(-1, 5)
+        self.slider.slider.setValue(24)
+        self.slider2.slider.setValue(300)
+        self.slider.value_changed.connect(self.update_plot)
+        self.slider2.value_changed.connect(self.update_plot)
 
-        self.magPlotWidget = RectPlotBase(x, [y], title='Ganancia dB', scale='log10', db=True)
-        self.phasePlotWidget = RectPlotBase(x, [phase], title='Fase', scale='log10', db=False)
+        self.notch = NotchFilter(300.0, 2.0)
+
+        self.filters = [
+            self.notch,
+        ]
+
+        def getMagData():
+            print("getMagData")
+            x, mag, _ = self.computePlot()
+            return x, [mag]
+        
+        def getPhaseData():
+            print("getPhaseData")
+            x, _, phase = self.computePlot()
+            return x, [phase]
+
+        self.magPlotWidget = FunctionPlotNav("Magnitude", getData=getMagData,dragable=True, scale='log10', db=True)
+        self.phasePlotWidget = FunctionPlotNav("Phase", getData=getPhaseData, dragable=True, scale='log10', db=False)
+
+        self.magPlotWidget.setMinimumHeight(300)
+        self.phasePlotWidget.setMinimumHeight(300)
 
         self.title = "Filter Editor"
 
-        button = Button("Center Plot", parent, 
-            on_click = lambda: self.magPlotWidget.center_plot())
-        button2 = Button("Reset Plot", parent, 
-            on_click = lambda: self.magPlotWidget.reset_plot())
-        button3 = Button("Autoscale X", parent,
-            on_click = lambda: self.magPlotWidget.autoscale_x())
 
-        button4 = Button("Autoscale Y", parent,
-                    on_click = lambda: self.magPlotWidget.autoscale_y())
+        vlayout.addWidget(self.slider)
+        vlayout.addWidget(self.slider2)
 
-        dropMenu = DropSwitchMenu(parent, options)
+        def autoscale():
+            self.magPlotWidget.rectPlot.autoscale_x()
+            self.magPlotWidget.rectPlot.autoscale_y()
+            self.phasePlotWidget.rectPlot.autoscale_x()
+            self.phasePlotWidget.rectPlot.autoscale_y()
+        button = Button("Autoscale", on_click=autoscale)
 
-        slider = Slider(0, 4, 300, 20)
-        slider.value_changed.connect(lambda value: self.update_plot(value))
-
-        hlayout.addWidget(button)
-        hlayout.addWidget(button2)
-        hlayout.addWidget(button3)
-        hlayout.addWidget(button4)
-        hlayout.addWidget(dropMenu)
-        hlayout.addWidget(slider)
-
-        vlayout.addLayout(hlayout)
-
-        vlayout.addWidget(self.magPlotWidget)    
-        vlayout.addWidget(self.phasePlotWidget)
-
-        self.setLayout(vlayout)
-
-    def update_plot(self, value):
+        hlayoutPlots = QHBoxLayout()
+        hlayoutPlots.setContentsMargins(0, 0, 0, 0)
+        hlayoutPlots.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        hlayoutPlots.addWidget(button)
+        vlayoutPlots.addLayout(hlayoutPlots)
+        vlayoutPlots.addWidget(self.magPlotWidget)    
+        vlayoutPlots.addWidget(self.phasePlotWidget)
+        vlayoutPlots.setStretch(1, 1)
+        vlayoutPlots.setStretch(2, 1)
         
-        n = 3000
-        x = np.linspace(0, 6, n)
-        wlog_x = 10**x
-        H = notch_filter(300, value)
-        _, mag, phase = signal.bode(H, wlog_x, n)
-        y = mag
+        hlayout.addLayout(vlayout)
+        hlayout.addLayout(vlayoutPlots)
+        hlayout.setStretch(1, 1)
 
-        self.magPlotWidget.update_plot(x, [y])
-        self.phasePlotWidget.update_plot(x, [phase])
+        self.setLayout(hlayout)
+
+    def computePlot(self, n=3000, x0=0.0, x1=6.0, base=10.0):
+        x = np.linspace(x0, x1, n)
+        wlog_x = base**x
+
+        self.notch.w0 = 10.0 ** self.slider2.get_value()
+        self.notch.xi = self.slider.get_value()
+
+        F = Filter()
+        for f in self.filters:
+            F = F * f
+        _, mag, phase = signal.bode(F.transfer(), wlog_x, n)
+
+        return x, mag, phase
+
+    def update_plot(self):
+        x, mag, phase = self.computePlot()
+
+        self.phasePlotWidget.rectPlot.update_plot(x, [phase])
+        self.magPlotWidget.rectPlot.update_plot(x, [mag])

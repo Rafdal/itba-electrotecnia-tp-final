@@ -5,7 +5,7 @@ from PyQt5.QtCore import pyqtSignal
 class Slider(QWidget):
     value_changed = pyqtSignal(float)
 
-    def __init__(self, min_val, max_val, width, height, mult=100):
+    def __init__(self, min_val, max_val, width=300, height=20, mult=100):
         super().__init__()
         self.min_val = min_val
         self.max_val = max_val

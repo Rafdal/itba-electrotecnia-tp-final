@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import QTabWidget
 from pages.filtersPage import FiltersPage
 from frontend.FunctionPlotNav import FunctionPlotNav
 
-# Enable LaTeX rendering
 import matplotlib as mpl
+import numpy as np
 
 class ExampleApp(QMainWindow):
     def __init__(self):
@@ -20,16 +20,23 @@ class ExampleApp(QMainWindow):
         tab_widget = QTabWidget()
         self.setCentralWidget(tab_widget)
 
+        # Create x and y data getter
+        def getData():
+            x = np.linspace(0, 6 * np.pi, 100)
+            y = 4*np.sin(x)+0.6
+            return x, [y]
+
         # create tabs
-        filtersPage = FiltersPage(self)
+        filtersPage = FiltersPage()
         tab2 = QWidget()
-        plotNav = FunctionPlotNav(self)
+        plotNav = FunctionPlotNav("Title", getData=getData, dragable=True)
 
         # add tabs to tab widget
         tab_widget.addTab(filtersPage, filtersPage.title)
         tab_widget.addTab(plotNav, 'Tab 2')
         
-        # add page
+        # set tab content background color
+        tab_widget.setStyleSheet("QWidget { background-color: #f5f5f5 }")
 
 
         self.show()

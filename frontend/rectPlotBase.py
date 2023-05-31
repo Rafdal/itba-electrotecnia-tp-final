@@ -4,17 +4,20 @@ from matplotlib.figure import Figure
 from matplotlib.ticker import FuncFormatter
 from matplotlib import rcParams
 import numpy as np
+from PyQt5.QtCore import Qt
 
 class RectPlotBase(QWidget):
-    def __init__(self, x, yList, title='', draggable=True, scale='linear', db=False):
+    def __init__(self, x, yList, draggable=True, scale='linear', db=False):
         super().__init__()
 
         # Create a figure and add the plot to it
         self.figure = Figure()
         self.canvas = FigureCanvasQTAgg(self.figure)
+        # Set the margins and padding of the subplot
+        self.figure.subplots_adjust(top=1.0, right=0.99)
         self.ax = self.figure.add_subplot(111)
         for y in yList:
-            self.ax.plot(x, y)[0]
+            self.plot = self.ax.plot(x, y)[0]
         # self.plot = self.ax.plot(x, y)[0]
         self._dragging = False
 
@@ -34,9 +37,6 @@ class RectPlotBase(QWidget):
         if db:
             self.ax.yaxis.set_major_formatter(FuncFormatter(lambda y, t: f'{y:.2f}dB'))
 
-        # Set the plot title
-        self.ax.set_title(title)
-
         # add log grid
         self.ax.grid(True, which='major', axis='both', linestyle='--', linewidth=0.5)
 
@@ -49,6 +49,7 @@ class RectPlotBase(QWidget):
 
         # Set up the layout
         layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         layout.addWidget(self.canvas)
         self.setLayout(layout)
 
