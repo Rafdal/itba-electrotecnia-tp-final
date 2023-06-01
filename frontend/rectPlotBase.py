@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt
 import math
 
 class RectPlotBase(QWidget):
-    def __init__(self, x, yList, draggable=True, scale='linear', postFix=None):
+    def __init__(self, draggable=True, scale='linear', postFix=None, yInitRange=20.0):
         super().__init__()
 
         # Create a figure and add the plot to it
@@ -17,14 +17,10 @@ class RectPlotBase(QWidget):
         # Set the margins and padding of the subplot
         self.figure.subplots_adjust(top=1.0, right=0.99)
         self.ax = self.figure.add_subplot(111)
-        for y in yList:
-            self.plot = self.ax.plot(x, y)[0]
-        # self.plot = self.ax.plot(x, y)[0]
-        self._dragging = False
 
-        # Save the initial plot parameters
-        self.initial_xlim = self.ax.get_xlim()
-        self.initial_ylim = self.ax.get_ylim()
+        self.yInitRange = yInitRange
+
+        self._dragging = False
 
         if scale == 'linear':
             pass
@@ -72,13 +68,31 @@ class RectPlotBase(QWidget):
     def on_release(self, event):
         self._dragging = False
 
+    def init_plot(self, x, yList):
+        for y in yList:
+            self.plot = self.ax.plot(x, y)[0]
+        
+        # check y limits range
+        y_range = self.ax.get_ylim()[1] - self.ax.get_ylim()[0]
+        if y_range < self.yInitRange:
+            # set y limits vertically centered to the plot with range of 20
+            y_center = (self.ax.get_ylim()[0] + self.ax.get_ylim()[1]) / 2.0
+            self.ax.set_ylim(y_center - self.yInitRange/2.0, y_center + self.yInitRange/2.0)
+
+        # save initial limits
+        self.initial_xlim = self.ax.get_xlim()
+        self.initial_ylim = self.ax.get_ylim()
+
+        # redraw plot
+        self.canvas.draw()
+
     def update_plot(self, x, yList):
         for i, y in enumerate(yList):
-            if i == 0:
-                self.plot.set_data(x, y)
+            if i < len(self.ax.lines):
+                self.ax.lines[i].set_ydata(y)
             else:
-                self.plot.set_ydata(y)
-            self.canvas.draw_idle()
+                self.ax.plot(x, y)
+        self.canvas.draw_idle()
 
     def on_motion(self, event):
         if event is None:
@@ -137,7 +151,7 @@ class RectPlotBase(QWidget):
         # Set the x axis limits based on the data range
         if x_data:
             x_range = max(x_data) - min(x_data)
-            x_margin = x_range * 0.05
+            x_margin = x_range * 0.02
             self.ax.set_xlim(min(x_data) - x_margin, max(x_data) + x_margin)
 
         # Redraw the canvas
@@ -157,7 +171,7 @@ class RectPlotBase(QWidget):
                 y_min = min(y_data)
                 y_max = max(y_data)
                 y_range = y_max - y_min
-                y_margin = y_range * 0.05
+                y_margin = y_range * 0.1
                 self.ax.set_ylim(y_min - y_margin, y_max + y_margin)
 
         # Redraw the canvas

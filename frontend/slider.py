@@ -14,8 +14,8 @@ class Slider(QWidget):
 
         # create slider
         self.slider = QSlider(Qt.Orientation.Horizontal)
-        self.slider.setMinimum(self.min_val * self.mult)
-        self.slider.setMaximum(self.max_val * self.mult)
+        self.slider.setMinimum(int(self.min_val * self.mult))
+        self.slider.setMaximum(int(self.max_val * self.mult))
         self.slider.setFixedWidth(width)
         self.slider.setFixedHeight(height)
         self.slider.valueChanged.connect(self.on_value_changed)
@@ -29,7 +29,12 @@ class Slider(QWidget):
         return float(self.slider.value()) / float(self.mult)
     
     def setValue(self, value):
-        self.slider.setValue(int(value * self.mult))
+        try:
+            self.slider.setValue(int(value * self.mult))
+        except:
+            print("Slider: value out of range")
+            print("Slider: value = ", value)
+            self.slider.setValue(int((self.max_val - self.min_val) * self.mult * 0.5))
 
     def initUI(self):
         # create label to display slider value

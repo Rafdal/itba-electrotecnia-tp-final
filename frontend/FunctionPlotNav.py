@@ -11,9 +11,7 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QSizePolicy
 
 class FunctionPlotNav(QWidget):
-    def __init__(self, title = 'Title', 
-            getData = lambda: (np.array([1,2,3,4]), [np.array([1,4,9,16])]), 
-            dragable = False, scale = 'linear', postFix = None):
+    def __init__(self, title = 'Title', dragable = False, scale = 'linear', postFix = None, yInitRange=20.0):
         super().__init__()
 
         mainLayout = QVBoxLayout(self)
@@ -48,14 +46,11 @@ class FunctionPlotNav(QWidget):
         hlayout.setContentsMargins(3, 3, 3, 0)
 
         # Add Widgets
-        self.getData = getData
-        x, yList = self.getData()
-        self.rectPlot = RectPlotBase(x, yList, dragable, scale, postFix=postFix)
+        self.rectPlot = RectPlotBase(dragable, scale, postFix=postFix, yInitRange=yInitRange)
         self.rectPlot.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        button1 = Button("Autoscale X", None,
-                            on_click=lambda: self.rectPlot.autoscale_x())
-        button2 = Button("Autoscale Y", None,
-                            on_click=lambda: self.rectPlot.autoscale_y())
+        button1 = Button("Autoscale X", None, on_click=lambda: self.rectPlot.autoscale_x())
+        button2 = Button("Autoscale Y", None, on_click=lambda: self.rectPlot.autoscale_y())
+        button3 = Button("Reset Scale", None, on_click=lambda: self.rectPlot.reset_plot())
         
         label = QLabel(title)
         label.setStyleSheet("""
@@ -66,6 +61,7 @@ class FunctionPlotNav(QWidget):
 
         hlayout.addWidget(button1)
         hlayout.addWidget(button2)
+        hlayout.addWidget(button3)
         hlayout.addWidget(label)
 
         layout.addLayout(hlayout)
@@ -75,6 +71,8 @@ class FunctionPlotNav(QWidget):
         frame.setLayout(layout)
         mainLayout.addWidget(frame)
 
-    def updatePlot(self):
-        x, yList = self.getData()
+    def init_plot(self, x, yList):
+        self.rectPlot.init_plot(x, yList)
+
+    def update_plot(self, x, yList):
         self.rectPlot.update_plot(x, yList)

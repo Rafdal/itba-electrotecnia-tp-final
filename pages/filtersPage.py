@@ -4,17 +4,19 @@ from frontend.dropSwitchMenu import DropSwitchMenu
 from PyQt5.QtCore import Qt
 import numpy as np
 from frontend.rectPlotBase import RectPlotBase
-from frontend.slider import Slider
 
 from backend.filters import *
 
 from frontend.FunctionPlotNav import FunctionPlotNav
+from frontend.DynamicSettings import DynamicSettings
 
 from scipy import signal
 
+import warnings
+import traceback
 
 class FiltersPage(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, data):
         super().__init__()
 
         # Create a layout for the widget
@@ -26,50 +28,33 @@ class FiltersPage(QWidget):
         vlayout = QVBoxLayout()
         vlayout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        self.slider = Slider(0, 4)
-        self.slider2 = Slider(0, 4)
-        self.slider3 = Slider(0, 4)
-        self.slider4 = Slider(0, 4)
-        self.slider.slider.setValue(10)
-        self.slider2.slider.setValue(11)
-        self.slider3.slider.setValue(12)
-        self.slider4.slider.setValue(13)
-        self.slider.value_changed.connect(self.update_plot)
-        self.slider2.value_changed.connect(self.update_plot)
-        self.slider3.value_changed.connect(self.update_plot)
-        self.slider4.value_changed.connect(self.update_plot)
-
         self.notch = NotchFilter(300.0, 2.0)
-        self.filter2 = HighPassNotch(300.0, 2.0, 300.0, 2.0)
+        self.filter2 = SOLowPass()
+
+        self.data = data
 
         self.filters = [
             # self.notch,
             self.filter2
         ]
 
-        def getMagData():
-            print("getMagData")
-            x, mag, _ = self.computePlot()
-            return x, [mag]
+        self.magPlotWidget = FunctionPlotNav("Magnitude", dragable=True, scale='log10', postFix="dB", yInitRange=200.0)
+        self.phasePlotWidget = FunctionPlotNav("Phase", dragable=True, scale='log10', postFix="°", yInitRange=420.0)
         
-        def getPhaseData():
-            print("getPhaseData")
-            x, _, phase = self.computePlot()
-            return x, [phase]
-
-        self.magPlotWidget = FunctionPlotNav("Magnitude", getData=getMagData,dragable=True, scale='log10', postFix="dB")
-        self.phasePlotWidget = FunctionPlotNav("Phase", getData=getPhaseData, dragable=True, scale='log10', postFix="°")
 
         self.magPlotWidget.setMinimumHeight(300)
         self.phasePlotWidget.setMinimumHeight(300)
 
+        # Compute and init plots
+        x, mag, phase = self.computePlot()
+        self.phasePlotWidget.init_plot(x, [phase])
+        self.magPlotWidget.init_plot(x, [mag])
+
         self.title = "Filter Editor"
 
 
-        vlayout.addWidget(self.slider)
-        vlayout.addWidget(self.slider2)
-        vlayout.addWidget(self.slider3)
-        vlayout.addWidget(self.slider4)
+        self.filterSettings = DynamicSettings(self.filter2.params, lambda k,v: self.update_plot())
+        vlayout.addWidget(self.filterSettings)
 
         def autoscale():
             self.magPlotWidget.rectPlot.autoscale_x()
@@ -98,21 +83,12 @@ class FiltersPage(QWidget):
         x = np.linspace(x0, x1, n)
         wlog_x = base**x
 
-        self.filter2.params['w0'].value = 10.0 ** self.slider.get_value()
-        # if 'xi' in self.filter2.params:
-        self.filter2.params['xi0'].value = self.slider2.get_value()
-
-        self.filter2.params['wz'].value = 10.0 ** self.slider3.get_value()
-        # if 'xi' in self.filter2.params:
-        self.filter2.params['xiz'].value = self.slider4.get_value()
-
         F = Filter()
         for f in self.filters:
             F = F * f
 
-        H = F.transfer()
-        _, mag, phase = signal.bode(H, wlog_x, n)
-        
+        self.data.H = F.transfer()
+        _, mag, phase = signal.bode(self.data.H, wlog_x, n)
 
         return x, mag, phase
 

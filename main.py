@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QLabel, QVBoxLay
 from PyQt5.QtWidgets import QTabWidget
 
 from pages.filtersPage import FiltersPage
+from pages.signalsPage import SignalsPage
 from frontend.FunctionPlotNav import FunctionPlotNav
 from frontend.rectPlotBase import RectPlotBase
 from frontend.DynamicSettings import DynamicSettings
@@ -10,7 +11,11 @@ from frontend.DynamicSettings import DynamicSettings
 import matplotlib as mpl
 import numpy as np
 
-from backend.filters import Param
+from scipy import signal
+
+from backend.utils import Param
+
+from models.dataModel import DataModel
 
 class ExampleApp(QMainWindow):
     def __init__(self):
@@ -24,43 +29,31 @@ class ExampleApp(QMainWindow):
         tab_widget = QTabWidget()
         self.setCentralWidget(tab_widget)
 
-        # Create x and y data getter
-        def getData():
-            x = np.linspace(0, 6 * np.pi, 100)
-            y = 4*np.sin(x) + 0.6
-            return x, [y]
+        # create a Data Model
+        self.dataModel = DataModel()
 
         # create tabs
-        filtersPage = FiltersPage()
-        tab2 = QWidget()
-        plotNav = FunctionPlotNav("Title", getData=getData, dragable=True)
-
-        # create plot
-        x = np.linspace(0, 6 * np.pi, 100)
-        y = 4*np.sin(x) + 0.6
-        rectPlot = RectPlotBase(x, [y])
-
-        # Create Param dict
-        params = {
-            "param1": Param(0, "A", "ms"),
-            "param2": Param(0, "B", "asd"),
-            "param3": Param(0, "C", "."),
-        }
-
-        # Create dynamic settings
-        dynamicSettings = DynamicSettings(params)
+        filtersPage = FiltersPage(data=self.dataModel)
+        signalsPage = SignalsPage(data=self.dataModel)
 
         # add tabs to tab widget
         tab_widget.addTab(filtersPage, filtersPage.title)
-        tab_widget.addTab(plotNav, 'Tab 2')
-        tab_widget.addTab(rectPlot, 'Tab 3')
-        tab_widget.addTab(dynamicSettings, 'Tab 4')
-        
+        tab_widget.addTab(signalsPage, signalsPage.title)
+
         # set tab content background color
         tab_widget.setStyleSheet("QWidget { background-color: #f5f5f5 }")
 
 
         self.show()
+
+    def tab_changed(self, index):
+        # get newly active tab
+        tab_widget = self.centralWidget()
+        current_widget = tab_widget.widget(index)
+
+        # call method on newly active tab
+        if isinstance(current_widget, SignalsPage):
+            current_widget.on_tab_focus()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
