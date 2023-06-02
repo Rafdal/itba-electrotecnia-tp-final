@@ -4,9 +4,6 @@ from PyQt5.QtWidgets import QTabWidget
 
 from pages.filtersPage import FiltersPage
 from pages.signalsPage import SignalsPage
-from frontend.FunctionPlotNav import FunctionPlotNav
-from frontend.rectPlotBase import RectPlotBase
-from frontend.DynamicSettings import DynamicSettings
 
 import matplotlib as mpl
 import numpy as np
@@ -43,6 +40,8 @@ class ExampleApp(QMainWindow):
         # set tab content background color
         tab_widget.setStyleSheet("QWidget { background-color: #f5f5f5 }")
 
+        tab_widget.currentChanged.connect(self.tab_changed)
+
 
         self.show()
 
@@ -50,6 +49,8 @@ class ExampleApp(QMainWindow):
         # get newly active tab
         tab_widget = self.centralWidget()
         current_widget = tab_widget.widget(index)
+
+        print("Tab changed to", current_widget)
 
         # call method on newly active tab
         if isinstance(current_widget, SignalsPage):

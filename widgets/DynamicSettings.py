@@ -13,11 +13,25 @@ class DynamicSettings(QWidget):
         self.labels = {}
         self.textboxes = {}
         self.onValueChanged = onValueChanged
+        self.vlayout = QVBoxLayout()
+        self.setLayout(self.vlayout)
         self.initUI()
 
     def initUI(self):
-        layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.update(self.settings_dict)
+
+    def update(self, settings_dict):
+        self.settings_dict = settings_dict
+        while self.vlayout.count():
+            child = self.vlayout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+            if child.layout():
+                while child.layout().count():
+                    grandchild = child.layout().takeAt(0)
+                    if grandchild.widget():
+                        grandchild.widget().deleteLater()
+
         for key, param in self.settings_dict.items():
             slider = Slider(param.min, param.max)
 
@@ -36,15 +50,13 @@ class DynamicSettings(QWidget):
             hbox.addWidget(textbox)
             hbox.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-            layout.addLayout(hbox)
-            layout.addWidget(slider)
+            self.vlayout.addLayout(hbox)
+            self.vlayout.addWidget(slider)
             self.sliders[key] = slider
             self.textboxes[key] = textbox
             self.labels[key] = label
 
             self.setSliderInitialPos(key, param.value)
-
-        self.setLayout(layout)
 
     def sliderCallback(self, key, value):
         if self.settings_dict[key].scale == 'log':

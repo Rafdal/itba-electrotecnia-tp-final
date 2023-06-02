@@ -8,6 +8,8 @@ class Filter:
     def __init__(self):
         self.num = [1.0]
         self.den = [1.0]
+        self.key = "-"
+        self.name = "-"
 
     def compute(self):
         pass
@@ -15,6 +17,10 @@ class Filter:
     def getCoeffs(self):
         self.compute()
         return [self.num, self.den]
+    
+    def getPolesAndZeroes(self):
+        self.compute()
+        return signal.tf2zpk(self.num, self.den)
     
     def transfer(self):
         self.compute()

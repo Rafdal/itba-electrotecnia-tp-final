@@ -1,14 +1,15 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
-from frontend.button import Button
-from frontend.dropSwitchMenu import DropSwitchMenu
+from widgets.button import Button
+from widgets.dropDownMenu import DropDownMenu
 from PyQt5.QtCore import Qt
 import numpy as np
-from frontend.rectPlotBase import RectPlotBase
+from widgets.rectPlotBase import RectPlotBase
 
 from backend.signals import *
 
-from frontend.FunctionPlotNav import FunctionPlotNav
-from frontend.DynamicSettings import DynamicSettings
+from widgets.FunctionPlotNav import FunctionPlotNav
+from widgets.DynamicSettings import DynamicSettings
+from widgets.DynamicWidgetList import DynamicWidgetList
 
 from scipy import signal
 
@@ -47,6 +48,14 @@ class SignalsPage(QWidget):
         self.signalSettings = DynamicSettings(self.signal.params, lambda k,v: self.update_plot())
         vlayout.addWidget(self.signalSettings)
 
+        listNameKey = [
+            RectangularWave(),
+            Sinewave(),
+        ]
+        
+        listWidget = DynamicWidgetList(listNameKey, self.onClick, self.onDelete)
+        vlayout.addWidget(listWidget)
+
         def autoscale():
             self.signalPlotWidget.rectPlot.autoscale_x()
             self.signalPlotWidget.rectPlot.autoscale_y()
@@ -55,13 +64,11 @@ class SignalsPage(QWidget):
             print(self.data.H)
 
         button = Button("Autoscale", on_click=autoscale)
-        button2 = Button("PrintTransfer", on_click=printTransfer)
 
         hlayoutPlots = QHBoxLayout()
         hlayoutPlots.setContentsMargins(0, 0, 0, 0)
         hlayoutPlots.setAlignment(Qt.AlignmentFlag.AlignLeft)
         hlayoutPlots.addWidget(button)
-        hlayoutPlots.addWidget(button2)
         vlayoutPlots.addLayout(hlayoutPlots)
         vlayoutPlots.addWidget(self.signalPlotWidget)    
         vlayoutPlots.setStretch(1, 1)
@@ -71,6 +78,13 @@ class SignalsPage(QWidget):
         hlayout.setStretch(1, 1)
 
         self.setLayout(hlayout)
+
+    def onClick(self, key, name):
+        print("onClick", key, name)
+
+    def onDelete(self, key, name):
+        print("onDelete", key, name)
+
 
     def on_tab_focus(self):
         print("on_tab_focus")

@@ -3,7 +3,7 @@ from .button import Button
 import numpy as np
 from PyQt5.QtCore import Qt
 from .slider import Slider
-from .dropSwitchMenu import DropSwitchMenu
+from .dropDownMenu import DropDownMenu
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from PyQt5.QtGui import QPalette
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QGraphicsDropShadowEffect, QFrame

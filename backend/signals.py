@@ -4,6 +4,8 @@ from .utils import Param
 
 class Sinewave:
     def __init__(self, A=1.0, f=1.0, p=0.0):
+        self.key = "Sinewave"
+        self.name = "Sinewave"
         self.params = {
             'A': Param(A, 'Amplitude', 'V'),
             'f': Param(f, 'Frequency', 'Hz', "log", [-2.0, 5.0]),
@@ -19,6 +21,8 @@ class Sinewave:
 
 class RectangularWave:
     def __init__(self, A=1.0, f=1.0, p=0.0, d=50.0, offset=0.0):
+        self.key = "RectWave"
+        self.name = "Rectangular Wave"
         self.params = {
             'A': Param(A, 'Amplitude', 'V'),
             'f': Param(f, 'Frequency', 'Hz', "log", [-2.0, 5.0]),
