@@ -53,7 +53,11 @@ class FiltersPage(QWidget):
         self.filterList.setMinimumHeight(200)
         self.filterList.setMinimumWidth(150)
 
-        self.filterMenu = DropDownMenu(options=self.data.filterOptions, onChoose=self.onFilterChoose)
+        self.filterMenu = DropDownMenu(
+            options=self.data.filterOptions, 
+            onChoose=self.onFilterChoose,
+            title="Select Filter"
+        )
 
         vlayout.addWidget(QLabel("Add Filters"))
         vlayout.addWidget(self.filterMenu)

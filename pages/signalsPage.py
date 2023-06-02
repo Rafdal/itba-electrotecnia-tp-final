@@ -29,8 +29,6 @@ class SignalsPage(QWidget):
 
         self.data = data
 
-        self.signal = RectangularWave()
-
 
         self.signalPlotWidget = FunctionPlotNav("Amplitude", dragable=True)
         # self.phasePlotWidget = FunctionPlotNav("Phase", getData=getPhaseData, dragable=True, scale='log10', postFix="°")
@@ -45,16 +43,13 @@ class SignalsPage(QWidget):
         self.title = "Signal Editor"
 
 
-        self.signalSettings = DynamicSettings(self.signal.params, lambda k,v: self.update_plot())
+        self.signalSettings = DynamicSettings(self.data.signal.params, lambda k,v: self.update_plot())
+
+        signalMenu = DropDownMenu("Select Signal", False, self.onSignalChoose, self.data.signalOptions)
+
+        vlayout.addWidget(signalMenu)
         vlayout.addWidget(self.signalSettings)
 
-        listNameKey = [
-            RectangularWave(),
-            Sinewave(),
-        ]
-        
-        listWidget = DynamicWidgetList(listNameKey, self.onClick, self.onDelete)
-        vlayout.addWidget(listWidget)
 
         def autoscale():
             self.signalPlotWidget.rectPlot.autoscale_x()
@@ -79,8 +74,9 @@ class SignalsPage(QWidget):
 
         self.setLayout(hlayout)
 
-    def onClick(self, key, name):
-        print("onClick", key, name)
+    def onSignalChoose(self):
+        self.signalSettings.update(self.data.signal.params)
+        self.update_plot()
 
     def onDelete(self, key, name):
         print("onDelete", key, name)
@@ -93,7 +89,7 @@ class SignalsPage(QWidget):
     # Create x and y data getter
     def getData(self):
         t = np.linspace(0, 6 * np.pi, 3000)
-        x = self.signal(t)
+        x = self.data.signal(t)
 
         # simulate system
         lti = signal.lti(self.data.H.num, self.data.H.den)

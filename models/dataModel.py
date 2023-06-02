@@ -1,4 +1,5 @@
 from backend.filters import *
+from backend.signals import *
 from scipy import signal
 
 class DataModel():
@@ -6,7 +7,30 @@ class DataModel():
 
         self.H = signal.TransferFunction([1], [1])
         self.filters = []
-        self.signals = []
+        self.signal = Sinewave()
+
+        self.signalOptions = [
+            {
+                'name': 'Sine',
+                'callback': lambda: setattr(self, 'signal', Sinewave()),
+            },
+            {
+                'name': 'Square',
+                'callback': lambda: setattr(self, 'signal', RectangularWave()),
+            },
+        ]
+        # {
+        #     'name': 'Sawtooth',
+        #     'callback': lambda: self.signals.append(Sawtooth()),
+        # },
+        # {
+        #     'name': 'Triangle',
+        #     'callback': lambda: self.signals.append(Triangle()),
+        # },
+        # {
+        #     'name': 'White Noise',
+        #     'callback': lambda: self.signals.append(WhiteNoise()),
+        # },
 
         self.filterOptions = [
             {
