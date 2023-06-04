@@ -17,6 +17,9 @@ class RectPlotBase(QWidget):
         self.yInitRange = yInitRange
         self.plotLabels = plotLabels
 
+        self.x_max = 0
+        self.x_min = 10.0
+
         # Create a figure and add the plot to it
         self.figure = Figure()
         self.canvas = FigureCanvasQTAgg(self.figure)
@@ -106,8 +109,8 @@ class RectPlotBase(QWidget):
     #     self.ax.grid(True, which='major', axis='both', linestyle='--', linewidth=0.5)
 
     def draw_x_ticks(self, x):
-        x_min = x[0]
-        x_max = x[-1]
+        x_min = self.x_min
+        x_max = self.x_max
         x_range = x_max - x_min
         x_step = x_range / 10.0
         x_ticks = np.arange(x_min, x_max + 0.0001*x_range, x_step)
@@ -138,6 +141,9 @@ class RectPlotBase(QWidget):
         self.initial_xlim = self.ax.get_xlim()
         self.initial_ylim = self.ax.get_ylim()
 
+        self.x_min = self.initial_xlim[0]
+        self.x_max = self.initial_xlim[1]
+
         self.ax.axhline(y=0, color='black', linewidth=1.0, alpha=0.5, zorder=2)
 
 
@@ -145,6 +151,8 @@ class RectPlotBase(QWidget):
         self.canvas.draw_idle()
 
     def update_plot(self, x, yList):
+        self.x_min = np.min(x)
+        self.x_max = np.max(x)
         for i, y in enumerate(yList):
             if i < len(self.ax.lines):
                 self.ax.lines[i].set_xdata(x)
@@ -199,15 +207,9 @@ class RectPlotBase(QWidget):
 
     def autoscale_x(self):
         # Get the x data from the plot
-        x_data = []
-        for line in self.ax.lines:
-            x_data.extend(line.get_xdata())
-
-        # Set the x axis limits based on the data range
-        if x_data:
-            x_range = max(x_data) - min(x_data)
-            x_margin = x_range * 0.02
-            self.ax.set_xlim(min(x_data) - x_margin, max(x_data) + x_margin)
+        x_range = self.x_max - self.x_min
+        x_margin = x_range * 0.02
+        self.ax.set_xlim(self.x_min - x_margin, self.x_max + x_margin)
 
         # Redraw the canvas
         self.canvas.draw_idle()
