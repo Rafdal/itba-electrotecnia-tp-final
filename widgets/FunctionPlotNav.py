@@ -11,7 +11,8 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QSizePolicy
 
 class FunctionPlotNav(QWidget):
-    def __init__(self, title = 'Title', dragable = False, scale = 'linear', postFix = None, yInitRange=20.0):
+    def __init__(self, title = 'Title', dragable = False, scale = 'linear', postFix = None, 
+                 yInitRange=20.0, resetScaleButton = True, xlabel = None, plotLabels = []):
         super().__init__()
 
         mainLayout = QVBoxLayout(self)
@@ -41,28 +42,42 @@ class FunctionPlotNav(QWidget):
         layout.setContentsMargins(3, 3, 3, 0)
         # layout.setSpacing(10)
 
-        hlayout = QHBoxLayout()
-        hlayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        hlayout.setContentsMargins(3, 3, 3, 0)
 
         # Add Widgets
-        self.rectPlot = RectPlotBase(dragable, scale, postFix=postFix, yInitRange=yInitRange)
+        self.rectPlot = RectPlotBase(dragable, scale, postFix=postFix, yInitRange=yInitRange, xlabel=xlabel, plotLabels=plotLabels)
         self.rectPlot.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         button1 = Button("Autoscale X", None, on_click=lambda: self.rectPlot.autoscale_x())
         button2 = Button("Autoscale Y", None, on_click=lambda: self.rectPlot.autoscale_y())
-        button3 = Button("Reset Scale", None, on_click=lambda: self.rectPlot.reset_plot())
+       
+        button3 = None
+        if resetScaleButton:
+            button3 = Button("Reset Scale", None, on_click=lambda: self.rectPlot.reset_plot())
         
         label = QLabel(title)
         label.setStyleSheet("""
             font-size: 18px;
             background-color: transparent;
             color: black;
-            """)
+        """)
+        hlayout = QHBoxLayout()
+        hlayout.setContentsMargins(3, 3, 3, 0)
 
         hlayout.addWidget(button1)
         hlayout.addWidget(button2)
-        hlayout.addWidget(button3)
-        hlayout.addWidget(label)
+        if button3 is not None:
+            hlayout.addWidget(button3)
+
+        titleLayout = QHBoxLayout()
+        titleLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        titleLayout.setContentsMargins(0, 0, 0, 0)
+        titleLayout.setSpacing(0)
+        titleLayout.addStretch(1)
+        titleLayout.addWidget(label)
+        titleLayout.addStretch(1)
+
+        hlayout.addStretch(1)
+        hlayout.addLayout(titleLayout)
+        hlayout.addStretch(1)
 
         layout.addLayout(hlayout)
         layout.addWidget(self.rectPlot)

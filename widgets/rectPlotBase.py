@@ -6,24 +6,28 @@ from matplotlib import rcParams
 import numpy as np
 from PyQt5.QtCore import Qt
 import math
+from decimal import Decimal
 
 class RectPlotBase(QWidget):
-    def __init__(self, draggable=True, scale='linear', postFix=None, yInitRange=20.0):
+    def __init__(self, draggable=True, scale='linear', postFix=None, yInitRange=20.0, xlabel=None, plotLabels=[]):
         super().__init__()
+
+        self.scale = scale
+        self.postFix = postFix
+        self.yInitRange = yInitRange
+        self.plotLabels = plotLabels
 
         # Create a figure and add the plot to it
         self.figure = Figure()
         self.canvas = FigureCanvasQTAgg(self.figure)
         # Set the margins and padding of the subplot
-        self.figure.subplots_adjust(top=1.0, right=0.99)
+        self.figure.subplots_adjust(top=1.0, right=0.99, bottom=0.18)
         self.ax = self.figure.add_subplot(111)
-
-        self.yInitRange = yInitRange
 
         self._dragging = False
 
         if scale == 'linear':
-            pass
+            self.ax.xaxis.set_major_formatter(FuncFormatter(self.format_linear))
         elif scale == 'log10':
             self.ax.xaxis.set_major_formatter(FuncFormatter(self.format_log10))
         elif scale == 'log2':
@@ -34,8 +38,13 @@ class RectPlotBase(QWidget):
         if postFix != None:
             self.ax.yaxis.set_major_formatter(FuncFormatter(lambda y, t: f'{y:.2f}{postFix}'))
 
-        # add log grid
         self.ax.grid(True, which='major', axis='both', linestyle='--', linewidth=0.5)
+
+        self.ax.set_xlabel(xlabel)
+
+        # set background color DEBUG
+        # rcParams['axes.facecolor'] = 'gray'
+        # rcParams['figure.facecolor'] = 'gray'
 
         # Enable dragging and exploration of the plot if requested
         if draggable:
@@ -49,7 +58,18 @@ class RectPlotBase(QWidget):
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         layout.addWidget(self.canvas)
         layout.setStretch(0, 1)  # Set the vertical stretch factor to 1
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         self.setLayout(layout)
+
+    def format_linear(self, x, t):
+        # Get the order of magnitude of the value
+        if x == 0:
+            return '0'
+        order = int(np.floor(np.log10(abs(x))))
+        # Calculate the number of significant digits to show
+        digits = max(0, 2 - order)
+        return f'{x:.{digits}f}'
 
     # Format x-axis tick labels in log scale
     def format_log10(self, exp, tick_number):
@@ -68,9 +88,44 @@ class RectPlotBase(QWidget):
     def on_release(self, event):
         self._dragging = False
 
+    # def clear_plot(self):
+    #     self.ax.clear()
+
+    #     if self.scale == 'linear':
+    #         pass
+    #     elif self.scale == 'log10':
+    #         self.ax.xaxis.set_major_formatter(FuncFormatter(self.format_log10))
+    #     elif self.scale == 'log2':
+    #         self.ax.xaxis.set_major_formatter(FuncFormatter(self.format_log2))
+    #     else:
+    #         raise ValueError(f'Invalid scale: {self.scale}')
+        
+    #     if self.postFix != None:
+    #         self.ax.yaxis.set_major_formatter(FuncFormatter(lambda y, t: f'{y:.2f}{self.postFix}'))
+
+    #     self.ax.grid(True, which='major', axis='both', linestyle='--', linewidth=0.5)
+
+    def draw_x_ticks(self, x):
+        x_min = x[0]
+        x_max = x[-1]
+        x_range = x_max - x_min
+        x_step = x_range / 10.0
+        x_ticks = np.arange(x_min, x_max + 0.0001*x_range, x_step)
+        self.ax.set_xticks(x_ticks)
+
+        # set x tick labels using format_linear
+        if self.scale == 'linear':
+            self.ax.set_xticklabels([self.format_linear(x, None) for x in x_ticks])
+
+        # set x limits
+        self.ax.set_xlim(x_min - x_range*0.05, x_max + x_range*0.05)
+
     def init_plot(self, x, yList):
         for y in yList:
             self.plot = self.ax.plot(x, y)[0]
+
+        if self.plotLabels != []:
+            self.ax.legend(self.plotLabels, loc='upper right', fontsize=12)
         
         # check y limits range
         y_range = self.ax.get_ylim()[1] - self.ax.get_ylim()[0]
@@ -83,15 +138,23 @@ class RectPlotBase(QWidget):
         self.initial_xlim = self.ax.get_xlim()
         self.initial_ylim = self.ax.get_ylim()
 
+        self.ax.axhline(y=0, color='black', linewidth=1.0, alpha=0.5, zorder=2)
+
+
         # redraw plot
-        self.canvas.draw()
+        self.canvas.draw_idle()
 
     def update_plot(self, x, yList):
         for i, y in enumerate(yList):
             if i < len(self.ax.lines):
+                self.ax.lines[i].set_xdata(x)
                 self.ax.lines[i].set_ydata(y)
             else:
                 self.ax.plot(x, y)
+
+        if self.plotLabels != []:
+            self.ax.legend(self.plotLabels, loc='upper right', fontsize=12)
+
         self.canvas.draw_idle()
 
     def on_motion(self, event):
@@ -134,14 +197,6 @@ class RectPlotBase(QWidget):
         self.ax.set_ylim(y_new_range[0], y_new_range[1])
         self.canvas.draw_idle()
 
-    def reset_plot(self):
-        print('resetting plot')
-        # Reset the plot to the initial parameters
-        self.ax.set_xlim(self.initial_xlim[0], self.initial_xlim[1])
-        self.ax.set_ylim(self.initial_ylim[0], self.initial_ylim[1])
-
-        self.canvas.draw_idle()
-
     def autoscale_x(self):
         # Get the x data from the plot
         x_data = []
@@ -177,27 +232,7 @@ class RectPlotBase(QWidget):
         # Redraw the canvas
         self.canvas.draw_idle()
 
-    def center_plot(self):
-        print('centering plot')
-
-        # Calculate the initial center point
-        x_center = (self.initial_xlim[0] + self.initial_xlim[1]) / 2
-        y_center = (self.initial_ylim[0] + self.initial_ylim[1]) / 2
-
-        # Get the current x and y limits
-        x_range = self.ax.get_xlim()
-        y_range = self.ax.get_ylim()
-
-        # Calculate the current zoom
-        x_zoom = (x_range[1] - x_range[0]) / (self.initial_xlim[1] - self.initial_xlim[0])
-        y_zoom = (y_range[1] - y_range[0]) / (self.initial_ylim[1] - self.initial_ylim[0])
-
-        # Calculate the new x and y limits to be centered around the initial center point
-        x_new_range = x_center - (self.initial_xlim[1] - self.initial_xlim[0]) / 2 * x_zoom, x_center + (self.initial_xlim[1] - self.initial_xlim[0]) / 2 * x_zoom
-        y_new_range = y_center - (self.initial_ylim[1] - self.initial_ylim[0]) / 2 * y_zoom, y_center + (self.initial_ylim[1] - self.initial_ylim[0]) / 2 * y_zoom
-    
-        # Set the new x and y limits
-        self.ax.set_xlim(x_new_range[0], x_new_range[1])
-        self.ax.set_ylim(y_new_range[0], y_new_range[1])
-
+    def reset_plot(self):
+        self.ax.set_xlim(self.initial_xlim)
+        self.ax.set_ylim(self.initial_ylim)
         self.canvas.draw_idle()

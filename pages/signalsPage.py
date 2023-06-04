@@ -30,15 +30,14 @@ class SignalsPage(QWidget):
         self.data = data
 
 
-        self.signalPlotWidget = FunctionPlotNav("Amplitude", dragable=True)
-        # self.phasePlotWidget = FunctionPlotNav("Phase", getData=getPhaseData, dragable=True, scale='log10', postFix="°")
+        self.signalPlotWidget = FunctionPlotNav("Amplitud", dragable=True, resetScaleButton=False, xlabel="Tiempo [s]")
+        self.signalPlotWidget.rectPlot.plotLabels = ["Output", "Input"]
 
         # Init plot
         x, yList = self.getData()
-        self.signalPlotWidget.init_plot(x, yList)
+        self.signalPlotWidget.rectPlot.init_plot(x, yList)
+        self.signalPlotWidget.rectPlot.draw_x_ticks(x)
 
-        # self.magPlotWidget.setMinimumHeight(300)
-        # self.phasePlotWidget.setMinimumHeight(300)
 
         self.title = "Signal Editor"
 
@@ -55,8 +54,6 @@ class SignalsPage(QWidget):
             self.signalPlotWidget.rectPlot.autoscale_x()
             self.signalPlotWidget.rectPlot.autoscale_y()
 
-        def printTransfer():
-            print(self.data.H)
 
         button = Button("Autoscale", on_click=autoscale)
 
@@ -88,7 +85,22 @@ class SignalsPage(QWidget):
 
     # Create x and y data getter
     def getData(self):
-        t = np.linspace(0, 6 * np.pi, 3000)
+        # get frequency
+        if 'f' in self.data.signal.params:
+            f = self.data.signal.params['f'].value
+
+        # check if stop is defined
+        stop = 69.0
+        if 'n_stop' in self.data.signal.params:
+            n_stop = self.data.signal.params['n_stop'].value
+            T = 1/f
+            stop = n_stop*T
+
+        if 't_stop' in self.data.signal.params:
+            stop = self.data.signal.params['t_stop'].value
+
+        t = np.linspace(0, stop, 5000, dtype=np.longdouble)
+
         x = self.data.signal(t)
 
         # simulate system
@@ -99,5 +111,13 @@ class SignalsPage(QWidget):
 
     def update_plot(self):
         x, yList = self.getData()
+
+        # self.signalPlotWidget.rectPlot.ax
+
+        # clear previous plot
+        # self.signalPlotWidget.rectPlot.clear_plot()
+
         self.signalPlotWidget.rectPlot.update_plot(x, yList)
-        # self.phasePlotWidget.update_plot()
+        self.signalPlotWidget.rectPlot.autoscale_x()
+
+        self.signalPlotWidget.rectPlot.draw_x_ticks(x)    

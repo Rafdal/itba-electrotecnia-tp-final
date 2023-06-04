@@ -17,7 +17,7 @@ class DynamicWidgetList(QWidget):
 
         self.scroll = QScrollArea()
         self.scroll.setWidgetResizable(True)
-        self.scroll.setFixedHeight(200)
+        self.scroll.setMinimumHeight(100)
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.scroll.setWidget(QWidget())
         self.scroll.widget().setLayout(self.vlayout)
@@ -37,10 +37,10 @@ class DynamicWidgetList(QWidget):
             frame = QFrame()
             frame.setLineWidth(2)
             frame.setMidLineWidth(0)
-            frame.setContentsMargins(10, 10, 10, 10)
-            frame.setStyleSheet("QFrame {border-radius: 10px; background-color: #FFFFFF; }")
+            frame.setContentsMargins(8, 8, 8, 8)
+            frame.setStyleSheet("QFrame {border-radius: 8px; background-color: #FFFFFF; }")
 
-            frame.setFixedHeight(50)
+            frame.setFixedHeight(40)
 
             shadow = QGraphicsDropShadowEffect()
             shadow.setBlurRadius(10)

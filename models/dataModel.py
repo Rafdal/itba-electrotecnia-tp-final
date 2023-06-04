@@ -5,33 +5,30 @@ from scipy import signal
 class DataModel():
     def __init__(self):
 
+        self.F = Filter()
         self.H = signal.TransferFunction([1], [1])
         self.filters = []
-        self.signal = Sinewave()
 
-        self.signalOptions = [
-            {
-                'name': 'Sine',
-                'callback': lambda: setattr(self, 'signal', Sinewave()),
-            },
-            {
-                'name': 'Square',
-                'callback': lambda: setattr(self, 'signal', RectangularWave()),
-            },
+        self.signal_list = [
+            Pulse(),
+            Sinewave(),
+            RectangularWave(),
+            TriangularWave(),
+            SawtoothWave(),
+            SenoidWithNoise(),
         ]
-        # {
-        #     'name': 'Sawtooth',
-        #     'callback': lambda: self.signals.append(Sawtooth()),
-        # },
-        # {
-        #     'name': 'Triangle',
-        #     'callback': lambda: self.signals.append(Triangle()),
-        # },
-        # {
-        #     'name': 'White Noise',
-        #     'callback': lambda: self.signals.append(WhiteNoise()),
-        # },
 
+        self.signal = self.signal_list[0]
+
+        # Create signal options
+        self.signalOptions = []
+        for s in self.signal_list:
+            self.signalOptions.append({
+                'name': s.name,
+                'callback': lambda s=s: setattr(self, 'signal', s),
+            })
+
+        # Create filter options
         self.filterOptions = [
             {
                 'name': 'Gain',

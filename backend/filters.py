@@ -1,6 +1,9 @@
 from scipy import signal
 from .utils import Param
 
+import math
+import numpy as np
+
 class Filter:
     """
     Base class for all filters
@@ -17,11 +20,7 @@ class Filter:
     def getCoeffs(self):
         self.compute()
         return [self.num, self.den]
-    
-    def getPolesAndZeroes(self):
-        self.compute()
-        return signal.tf2zpk(self.num, self.den)
-    
+        
     def transfer(self):
         self.compute()
         return signal.TransferFunction(self.num, self.den)
@@ -58,7 +57,7 @@ class Gain(Filter):
         self.key = "Gain"
         self.name = "Gain"
         self.params = {
-            'gain': Param(gain, 'Gain', 'dB', range=[-50.0, 50.0])
+            'gain': Param(gain, 'Gain', 'dB', range=[-100.0, 100.0])
         }
         self.compute()
 
@@ -97,7 +96,7 @@ class FOHighPass(Filter):
     
     def compute(self):
         w0 = self.params['w0'].value
-        self.num = [1.0, 0.0]
+        self.num = [1/w0, 0.0]
         self.den = [1/w0, 1]
 
 
@@ -124,7 +123,7 @@ class SOLowPass(Filter):
         self.name = "Second Order Low Pass"
         self.params = {
             'w0': Param(w0, 'ω0', 'rad/s', 'log'),
-            'xi': Param(xi, 'ξ', 'rad/s')
+            'xi': Param(xi, 'ξ', 'rad/s', range=[0.0, 10.0])
         }
         self.compute()
 
@@ -144,7 +143,7 @@ class SOHighPass(Filter):
         self.name = "Second Order High Pass"
         self.params = {
             'w0': Param(w0, 'ω0', 'rad/s', 'log'),
-            'xi': Param(xi, 'ξ', 'rad/s')
+            'xi': Param(xi, 'ξ', 'rad/s', range=[0.0, 10.0])
         }
         self.compute()
 
@@ -153,7 +152,7 @@ class SOHighPass(Filter):
         xi = self.params['xi'].value
         if abs(w0) <= 1e-10:
             w0 = 1e-10
-        self.num = [1.0, 0.0, 0.0]
+        self.num = [w0**(-2), 0.0, 0.0]
         self.den = [w0**(-2), (2.0 * xi) / w0, 1.0]
 
 
@@ -164,7 +163,7 @@ class SOAllPass(Filter):
         self.name = "Second Order All Pass"
         self.params = {
             'w0': Param(w0, 'ω0', 'rad/s', 'log'),
-            'xi': Param(xi, 'ξ', 'rad/s')
+            'xi': Param(xi, 'ξ', 'rad/s', range=[0.0, 10.0])
         }
         self.compute()
 
@@ -180,13 +179,13 @@ class SOAllPass(Filter):
 
 
 class SOBandPass(Filter):
-    def __init__(self, w0=500.0, xi=0.23):
+    def __init__(self, w0=500.0, xi=0.5):
         super().__init__()
         self.key = "SOBandPass"
         self.name = "Second Order Band Pass"
         self.params = {
             'w0': Param(w0, 'ω0', 'rad/s', 'log'),
-            'xi': Param(xi, 'ξ', 'rad/s')
+            'xi': Param(xi, 'ξ', 'rad/s', range=[0.0, 10.0])
         }
         self.compute()
 
@@ -197,7 +196,7 @@ class SOBandPass(Filter):
         if abs(w0) <= 1e-10:
             w0 = 1e-10
 
-        self.num = [0.0, 1.0, 0.0]
+        self.num = [0.0, 1.0/w0, 0.0]
         self.den = [w0**(-2), (2.0 * xi) / w0, 1.0]
 
 
@@ -208,7 +207,7 @@ class NotchFilter(Filter):
         self.name = "Notch"
         self.params = {
             'w0': Param(w0, 'ω0', 'rad/s', 'log'),
-            'xi': Param(xi, 'ξ', 'rad/s')
+            'xi': Param(xi, 'ξ', 'rad/s', range=[0.0, 10.0])
         }
         self.compute()
 
@@ -231,8 +230,8 @@ class LowPassNotch(Filter):
         self.params = {
             'w0': Param(w0, 'ω0', 'rad/s', 'log'),
             'wz': Param(wz, 'ωz', 'rad/s', 'log'),
-            'xi0': Param(xi0, 'ξ0', 'rad/s'),
-            'xiz': Param(xiz, 'ξz', 'rad/s'),
+            'xi0': Param(xi0, 'ξ0', 'rad/s', range=[0.0, 10.0]),
+            'xiz': Param(xiz, 'ξz', 'rad/s', range=[0.0, 10.0]),
         }
         self.compute()
 
@@ -256,15 +255,15 @@ class LowPassNotch(Filter):
 
 
 class HighPassNotch(Filter):
-    def __init__(self, w0=2130.0, wz=3450.0, xi0=0.4, xiz=0.5):
+    def __init__(self, w0=3450.0, wz=2130.0, xi0=0.4, xiz=0.5):
         super().__init__()
         self.key = "HighPassNotch"
         self.name = "High Pass Notch"
         self.params = {
             'w0': Param(w0, 'ω0', 'rad/s', 'log'),
             'wz': Param(wz, 'ωz', 'rad/s', 'log'),
-            'xi0': Param(xi0, 'ξ0', 'rad/s'),
-            'xiz': Param(xiz, 'ξz', 'rad/s'),
+            'xi0': Param(xi0, 'ξ0', 'rad/s', range=[0.0, 10.0]),
+            'xiz': Param(xiz, 'ξz', 'rad/s', range=[0.0, 10.0]),
         }
         self.compute()
 

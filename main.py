@@ -21,7 +21,7 @@ class ExampleApp(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('Example App')
-        self.setGeometry(100, 100, 800, 800)
+        self.setGeometry(100, 100, 100, 100)
 
         tab_widget = QTabWidget()
         self.setCentralWidget(tab_widget)
@@ -50,10 +50,8 @@ class ExampleApp(QMainWindow):
         tab_widget = self.centralWidget()
         current_widget = tab_widget.widget(index)
 
-        print("Tab changed to", current_widget)
-
-        # call method on newly active tab
-        if isinstance(current_widget, SignalsPage):
+        # check if method exists
+        if hasattr(current_widget, 'on_tab_focus'): 
             current_widget.on_tab_focus()
 
 if __name__ == '__main__':

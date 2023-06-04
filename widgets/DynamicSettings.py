@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QLineEdit, QHBoxLayout
 from PyQt5.QtCore import Qt
 from .slider import Slider
-from decimal import Decimal
 import numpy as np
 
 class DynamicSettings(QWidget):
@@ -14,13 +14,16 @@ class DynamicSettings(QWidget):
         self.textboxes = {}
         self.onValueChanged = onValueChanged
         self.vlayout = QVBoxLayout()
+        self.vlayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.vlayout.setContentsMargins(0,0,0,0)
+        self.vlayout.setSpacing(0)
         self.setLayout(self.vlayout)
         self.initUI()
 
     def initUI(self):
         self.update(self.settings_dict)
 
-    def update(self, settings_dict):
+    def update(self, settings_dict, title="Settings"):
         self.settings_dict = settings_dict
         while self.vlayout.count():
             child = self.vlayout.takeAt(0)
@@ -31,9 +34,26 @@ class DynamicSettings(QWidget):
                     grandchild = child.layout().takeAt(0)
                     if grandchild.widget():
                         grandchild.widget().deleteLater()
+                    if grandchild.layout():
+                        while grandchild.layout().count():
+                            grandgrandchild = grandchild.layout().takeAt(0)
+                            if grandgrandchild.widget():
+                                grandgrandchild.widget().deleteLater()
 
+        # Create title label
+        titleLabel = QLabel(title)
+        font = QFont('Arial', 10, QFont.Bold)
+        titleLabel.setFont(font)
+
+        # Create title layout
+        titleLayout = QHBoxLayout()
+        titleLayout.setContentsMargins(2, 0, 2, 2)
+        titleLayout.setSpacing(0)
+        titleLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        titleLayout.addWidget(titleLabel)
+        self.vlayout.addLayout(titleLayout)
         for key, param in self.settings_dict.items():
-            slider = Slider(param.min, param.max)
+            slider = Slider(param.min, param.max, mult=param.n)
 
             slider.value_changed.connect(lambda value, key=key: self.sliderCallback(key, value))
             
@@ -49,6 +69,8 @@ class DynamicSettings(QWidget):
             hbox.addWidget(label)
             hbox.addWidget(textbox)
             hbox.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            hbox.setContentsMargins(0,0,0,0)
+            hbox.setSpacing(0)
 
             self.vlayout.addLayout(hbox)
             self.vlayout.addWidget(slider)

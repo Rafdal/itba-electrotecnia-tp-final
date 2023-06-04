@@ -8,6 +8,7 @@ from widgets.rectPlotBase import RectPlotBase
 from backend.filters import *
 
 from widgets.FunctionPlotNav import FunctionPlotNav
+from widgets.ZerosPolesPlot import ZerosPolesPlot
 from widgets.DynamicSettings import DynamicSettings
 from widgets.DynamicWidgetList import DynamicWidgetList
 
@@ -33,15 +34,16 @@ class FiltersPage(QWidget):
 
         self.selectedFilter = None
 
-        self.magPlotWidget = FunctionPlotNav("Magnitude", dragable=True, scale='log10', postFix="dB", yInitRange=200.0)
-        self.phasePlotWidget = FunctionPlotNav("Phase", dragable=True, scale='log10', postFix="°", yInitRange=420.0)
-        
+        self.magPlotWidget = FunctionPlotNav("Ganancia [dB]", dragable=True, scale='log10', postFix="dB", yInitRange=200.0, xlabel="Frecuencia [Hz]")
+        self.phasePlotWidget = FunctionPlotNav("Fase [°]", dragable=True, scale='log10', postFix="°", yInitRange=420.0, xlabel="Frecuencia [Hz]")
+        self.polesZerosPlotWidget = ZerosPolesPlot(data=self.data)
 
         self.magPlotWidget.setMinimumHeight(300)
         self.phasePlotWidget.setMinimumHeight(300)
 
         # Compute and init plots
         x, mag, phase = self.computePlot()
+
         self.phasePlotWidget.init_plot(x, [phase])
         self.magPlotWidget.init_plot(x, [mag])
 
@@ -50,7 +52,7 @@ class FiltersPage(QWidget):
         self.filterSettings = DynamicSettings({}, lambda k,v: self.update_plot())
 
         self.filterList = DynamicWidgetList(self.data.filters, self.onFilterClick, self.onFilterDelete)
-        self.filterList.setMinimumHeight(200)
+        self.filterList.setMinimumHeight(180)
         self.filterList.setMinimumWidth(150)
 
         self.filterMenu = DropDownMenu(
@@ -64,19 +66,13 @@ class FiltersPage(QWidget):
         vlayout.addWidget(self.filterList)
 
         vlayout.addWidget(self.filterSettings)
-        vlayout.addStretch(0)
+        vlayout.addWidget(self.polesZerosPlotWidget)
+        # vlayout.addStretch(0)
 
-        def autoscale():
-            self.magPlotWidget.rectPlot.autoscale_x()
-            self.magPlotWidget.rectPlot.autoscale_y()
-            self.phasePlotWidget.rectPlot.autoscale_x()
-            self.phasePlotWidget.rectPlot.autoscale_y()
-        button = Button("Autoscale", on_click=autoscale)
 
         hlayoutPlots = QHBoxLayout()
         hlayoutPlots.setContentsMargins(0, 0, 0, 0)
         hlayoutPlots.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        hlayoutPlots.addWidget(button)
         vlayoutPlots.addLayout(hlayoutPlots)
         vlayoutPlots.addWidget(self.magPlotWidget)    
         vlayoutPlots.addWidget(self.phasePlotWidget)
@@ -93,16 +89,19 @@ class FiltersPage(QWidget):
         self.filterList.render_widgets()
         if len(self.data.filters) > 0:
             self.selectedFilter = self.data.filters[-1]
-            self.filterSettings.update(self.selectedFilter.params)
+            self.filterSettings.update(self.selectedFilter.params, self.selectedFilter.name + " Settings")
         else:
             self.selectedFilter = None
-            self.filterSettings.update({})
+            self.filterSettings.update({}, "")
 
         self.update_plot()
 
+    def on_tab_focus(self):
+        pass
+
     def onFilterClick(self, idx, value):
         self.selectedFilter = self.data.filters[idx]
-        self.filterSettings.update(self.selectedFilter.params)
+        self.filterSettings.update(self.selectedFilter.params, self.selectedFilter.name + " Settings")
         print("click", idx, value)
 
     def onFilterDelete(self, idx, value):
@@ -111,29 +110,29 @@ class FiltersPage(QWidget):
         self.filterList.render_widgets()
         if len(self.data.filters) > 0:
             self.selectedFilter = self.data.filters[-1]
-            self.filterSettings.update(self.selectedFilter.params)
+            self.filterSettings.update(self.selectedFilter.params, self.selectedFilter.name + " Settings")
         else:
             self.selectedFilter = None
-            self.filterSettings.update({})
+            self.filterSettings.update({}, "")
         self.update_plot()
 
 
-    def computePlot(self, n=3000, x0=0.0, x1=6.0, base=10.0):
+    def computePlot(self, n=5000, x0=0.0, x1=6.0, base=10.0):
         # f0 = Param(-2.0, "Start Frequency", "Hz", range=[-3.0, 3.0])
         # f1 = Param(6.0, "End Frequency", "Hz", range=[4.0, 12.0])
 
         x = np.linspace(x0, x1, n)
-        wlog_x = base**x
+        flog_x = base**x
+        wlog_x = 2.0 * np.pi * flog_x
 
         F = Filter()
         for f in self.data.filters:
             F = F * f
 
+        self.data.F = F
         self.data.H = F.transfer()
         _, mag, phase = signal.bode(self.data.H, wlog_x, n)
 
-        # get poles and zeros
-        poles, zeros, _ = F.getPolesAndZeroes()
 
         return x, mag, phase
 
@@ -142,3 +141,5 @@ class FiltersPage(QWidget):
 
         self.phasePlotWidget.rectPlot.update_plot(x, [phase])
         self.magPlotWidget.rectPlot.update_plot(x, [mag])
+
+        self.polesZerosPlotWidget.on_tab_focus()
