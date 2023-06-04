@@ -281,5 +281,5 @@ class HighPassNotch(Filter):
         if abs(wz) <= 1e-11:
             wz = 1e-11
 
-        self.num = [wz**(-2), (2 * xiz) / wz, 1.0]
-        self.den = [w0**(-2), (2.0 * xi0) / w0, 1.0]
+        self.num = [1.0, 2 * xiz * wz, wz**2]
+        self.den = [1.0, 2.0 * xi0 * w0, w0**2]
