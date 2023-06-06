@@ -6,9 +6,64 @@ import numpy as np
 
 class ReadLTSpice:
     def __init__(self, folder="data", idx=None):
-        varListData = []
-        self.montecarlo = False
+        self.varListData = []
+        self.is_montecarlo = False
+        self.filename = ""
 
+        self.colors = {
+            "V": "blue",
+            "I": "red",
+            "?": "black",
+        }
+
+        filepath = self.getFilePath(folder, idx)
+
+        self.l = ltspice.Ltspice(filepath)
+
+        # parse the file
+        self.l.parse()
+
+        self.case_count = self.l.case_count
+        self.varListNames = self.l.variables[1:]
+        self.varListInfo = []
+
+        self.time = self.l.get_time()
+
+        print("Warning: Usando interpolación de datos")
+        for varName in self.varListNames:
+            if self.case_count > 1:
+                self.is_montecarlo = True
+                run = []
+                for i in range(self.case_count):
+                    # Al usar time=self.time, se interpola la señal para que tenga el mismo largo
+                    run.append(self.l.get_data(varName, case=i, time=self.time))
+                self.varListData.append(run)
+
+            else:
+                self.varListData.append(self.l.get_data(varName))
+
+            if varName[0] == "I":
+                self.varListInfo.append({
+                    "name": varName.split("(")[1].split(")")[0],
+                    "symbol": "I",
+                    "unit": "A",
+                })
+            elif varName[0] == "V":
+                self.varListInfo.append({
+                    "name": varName.split("(")[1].split(")")[0],
+                    "symbol": "V",
+                    "unit": "V",
+                })
+            else:
+                self.varListInfo.append({
+                    "name": varName.split("(")[1].split(")")[0],
+                    "symbol": "?",
+                    "unit": "?",
+                })
+
+        self.data_points = len(self.time)
+
+    def getFilePath(self, folder, idx):
         # define the folder paths
         local = os.getcwd()
         data_folder = os.path.join(local, folder)
@@ -19,46 +74,33 @@ class ReadLTSpice:
         if idx is None:
             for i, name in enumerate(data_filenames):
                 print(f"{i}:\t{name}")
-            i = input("Enter file index to Open: ")
+            idx = int(input("Enter file index to Open: "))
 
         if idx > len(data_filenames):
             print(f"File index out of range")
-            return
+            exit(1)
 
-        # open the first file in the list
+        # open the file
         self.filename = data_filenames[idx]
         filePath = os.path.join(data_folder, self.filename)
         print(f"Reading file: {self.filename}")
-        self.l = ltspice.Ltspice(filePath)
-
-        # parse the file
-        self.l.parse()
-
-        self.case_count = self.l.case_count
-
-        self.varListNames = self.l.variables
-
-        for varName in self.varListNames:
-            if self.case_count > 1:
-                self.montecarlo = True
-                run = []
-                for i in range(self.case_count):
-                    run.append(self.l.get_data(varName, case=i))
-                varListData.append(run)
-            else:
-                varListData.append(self.l.get_data(varName))
-
-        self.time = varListData[0]
+        return filePath
     
     def getSpice(self):
         return self.l
 
     def info(self):
         print(f"File: {self.filename}")
-        print(f"Data points: {len(self.time)}")
-        print(f"Monte Carlo: {self.montecarlo}")
-        print(f"Runs: {self.case_count}")
         print("Variable list:")
         for i, name in enumerate(self.varListNames):
-            print(f"{i}:\t{name}")
+            print(f"  {i:02}: \"{name}\"")
+        if self.is_montecarlo:
+            print(f"Monte Carlo Runs: {self.case_count}")
+            mean = np.mean(self.data_points)
+            maxDp = np.max(self.data_points)
+            minDp = np.min(self.data_points)
+            print(f"Data points (Mean: {mean}\tMax: {maxDp}\tMin: {minDp})")
+        else:
+            print(f"Monte Carlo: FALSE")
+            print(f"Data points: {self.data_points}")
         pass
