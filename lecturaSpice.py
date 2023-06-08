@@ -13,22 +13,27 @@ plot_VL_C1 = [0, 4]
 
 print(len(data.varListInfo))
 
+fig, ax1 = plt.subplots()
+
 for i in plot_VL_C1:
-
     print(f"Plotting {data.varListNames[i]}")
-
     symbol = data.varListInfo[i]["symbol"]
     print(f"Symbol: {symbol}")
     color = data.colors[symbol]
     if data.is_montecarlo:
         for run in data.varListData[i]:
-            plt.plot(data.time, run, linewidth=0.5, color=color, alpha=0.2)
-
+            ax1.plot(data.time, run, linewidth=0.5, color=color, alpha=0.2)
     else:
-        plt.plot(data.time, data.varListData[i], linewidth=1.0, color=color, alpha=1.0, label=data.varListNames[i])
+        if data.varListInfo[i]["symbol"] == "I":
+            ax2 = ax1.twinx()
+            ax2.set_ylabel("Voltage (V)")
+            ax2.plot(data.time, data.varListData[i], linewidth=1.0, color=color, alpha=1.0, label=data.varListNames[i])
+        else:
+            ax1.plot(data.time, data.varListData[i], linewidth=1.0, color=color, alpha=1.0, label=data.varListNames[i])
 
-plt.ylabel("Current (A)")
-plt.xlabel('Time (s)')
-plt.grid()
-plt.legend()
+
+ax1.set_ylabel("Current (A)")
+ax1.set_xlabel('Time (s)')
+ax1.grid()
+ax1.legend()
 plt.show()
