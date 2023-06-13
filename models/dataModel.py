@@ -1,5 +1,5 @@
-from backend.filters import *
-from backend.signals import *
+from libs.filters import *
+from libs.signals import *
 from scipy import signal
 
 class DataModel():
@@ -73,5 +73,9 @@ class DataModel():
             {
                 'name': 'High Pass Notch',
                 'callback': lambda: self.filters.append(HighPassNotch()),
+            },
+            {
+                'name': 'Custom Filter',
+                'callback': lambda: self.filters.append(CustomFilter()),
             },
         ]

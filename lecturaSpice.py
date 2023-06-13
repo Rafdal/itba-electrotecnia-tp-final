@@ -2,7 +2,7 @@ import os
 import ltspice
 import matplotlib.pyplot as plt
 import numpy as np
-from backend.LTSpiceReader import ReadLTSpice
+from libs.LTSpiceReader import ReadLTSpice
 
 # FILE INDEX TO OPEN
 # No especificar el indice para que pregunte

@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 import numpy as np
 from widgets.rectPlotBase import RectPlotBase
 
-from backend.filters import *
+from libs.filters import *
 
 from widgets.FunctionPlotNav import FunctionPlotNav
 from widgets.ZerosPolesPlot import ZerosPolesPlot

@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 import numpy as np
 from widgets.rectPlotBase import RectPlotBase
 
-from backend.signals import *
+from libs.signals import *
 
 from widgets.FunctionPlotNav import FunctionPlotNav
 from widgets.DynamicSettings import DynamicSettings

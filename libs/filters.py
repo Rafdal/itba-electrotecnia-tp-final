@@ -13,6 +13,7 @@ class Filter:
         self.den = [1.0]
         self.key = "-"
         self.name = "-"
+        self.params = {}
         self.callback = None
 
     def compute(self):
@@ -284,3 +285,26 @@ class HighPassNotch(Filter):
 
         self.num = [1.0, 2 * xiz * wz, wz**2]
         self.den = [1.0, 2.0 * xi0 * w0, w0**2]
+
+
+from widgets.PopUpForm import PopUpForm
+from libs.polyFunc import get_poly_coeffs
+
+# FIXME: Todavia no anda muy bien
+# TODO: Falta poner los try catch para las excepciones
+class CustomFilter(Filter):
+    def __init__(self):
+        super().__init__()
+        self.key = "Custom"
+        self.name = "Custom Filter"
+        self.popUp = PopUpForm()
+        self.popUp.set_callback(self.getTexts)
+        self.compute()
+
+    def getTexts(self, txt1, txt2):
+        self.num = get_poly_coeffs(txt1)
+        self.den = get_poly_coeffs(txt2)
+
+    def compute(self):
+        self.popUp.show()
+            
