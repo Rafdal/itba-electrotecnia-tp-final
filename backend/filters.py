@@ -13,6 +13,7 @@ class Filter:
         self.den = [1.0]
         self.key = "-"
         self.name = "-"
+        self.callback = None
 
     def compute(self):
         pass
