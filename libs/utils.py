@@ -33,6 +33,71 @@ def get_poly_coeffs(func_str):
     return coeffs
 
 
+def searchMaxMinInRange(x, y, t0, t1, ax = None, text = None, axisFlag = "both", c='r', s=10):
+    # Search for the local maximum and minimum values in the range
+    # Return two lists with the point coordinates
+
+    max_points = []
+    min_points = []
+
+    for i in range(len(x))[1:]:
+        if x[i] >= t0 and x[i] <= t1:
+            if i == 0:
+                if y[i] > y[i+1]:
+                    max_points.append((x[i], y[i]))
+                elif y[i] < y[i+1]:
+                    min_points.append((x[i], y[i]))
+            elif i == len(x) - 1:
+                if y[i] > y[i-1]:
+                    max_points.append((x[i], y[i]))
+                elif y[i] < y[i-1]:
+                    min_points.append((x[i], y[i]))
+            else:
+                if y[i] > y[i-1] and y[i] > y[i+1]:
+                    max_points.append((x[i], y[i]))
+                elif y[i] < y[i-1] and y[i] < y[i+1]:
+                    min_points.append((x[i], y[i]))
+
+    if ax is not None:
+        # Plot the maxima and minima as red and blue dots, respectively
+        for point in max_points:
+            ax.scatter(point[0], point[1], c=c, marker='o', s=s)
+            if text is not None:
+                if text == "up":
+                    ax.annotate(f'({point[0]:.2f}, {point[1]:.2f})', xy=(point[0], point[1]), xytext=(5, 5), textcoords='offset points')
+                else:
+                    ax.annotate(f'({point[0]:.2f}, {point[1]:.2f})', xy=(point[0], point[1]), xytext=(5, -15), textcoords='offset points')
+        for point in min_points:
+            ax.scatter(point[0], point[1], c=c, marker='o', s=s)
+            if text is not None:
+                if not text == "up":
+                    ax.annotate(f'({point[0]:.2f}, {point[1]:.2f})', xy=(point[0], point[1]), xytext=(5, 5), textcoords='offset points')
+                else:
+                    ax.annotate(f'({point[0]:.2f}, {point[1]:.2f})', xy=(point[0], point[1]), xytext=(5, -15), textcoords='offset points')
+
+    if axisFlag == 'x':
+        max_points = [point[0] for point in max_points]
+        min_points = [point[0] for point in min_points]
+    elif axisFlag == 'y':
+        max_points = [point[1] for point in max_points]
+        min_points = [point[1] for point in min_points]
+
+    return max_points, min_points
+
+
+def mean_spacing(values):
+    # Sort the values in ascending order
+    sorted_values = sorted(values)
+
+    # Calculate the differences between adjacent values
+    diffs = [sorted_values[i+1] - sorted_values[i] for i in range(len(sorted_values)-1)]
+
+    # Calculate the mean spacing
+    mean_spacing = sum(diffs) / len(diffs)
+
+    return mean_spacing
+
+
 """ 
 import unittest
 

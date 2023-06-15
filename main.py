@@ -5,12 +5,6 @@ from PyQt5.QtWidgets import QTabWidget
 from pages.filtersPage import FiltersPage
 from pages.signalsPage import SignalsPage
 
-import matplotlib as mpl
-import numpy as np
-
-from scipy import signal
-
-from libs.utils import Param
 
 from models.dataModel import DataModel
 
