@@ -293,18 +293,21 @@ from libs.polyFunc import get_poly_coeffs
 # FIXME: Todavia no anda muy bien
 # TODO: Falta poner los try catch para las excepciones
 class CustomFilter(Filter):
-    def __init__(self):
+    def __init__(self, on_close=lambda: print("On Filter Close")):
         super().__init__()
         self.key = "Custom"
         self.name = "Custom Filter"
         self.popUp = PopUpForm()
         self.popUp.set_callback(self.getTexts)
-        self.compute()
+        self.callback = lambda: self.popUp.show()
+        self.on_close = on_close
+        self.callback()
 
     def getTexts(self, txt1, txt2):
         self.num = get_poly_coeffs(txt1)
         self.den = get_poly_coeffs(txt2)
+        self.on_close()
 
     def compute(self):
-        self.popUp.show()
+        pass
             

@@ -19,10 +19,14 @@ class PopUpForm(QDialog):
         layout.addWidget(self.button)
 
     def submit(self):
-        text1 = self.textbox1.text()
-        text2 = self.textbox2.text()
-        self.accept()
-        self.callback(text1, text2)
+        try:
+            text1 = self.textbox1.text()
+            text2 = self.textbox2.text()
+            self.callback(text1, text2)
+        except Exception as e:
+            print("DOMADO:", e)
+        else:
+            self.accept()
 
     def set_callback(self, callback):
         self.callback = callback

@@ -19,6 +19,8 @@ def get_poly_coeffs(func_str):
         if not sympy.sympify(c).is_number:
             raise Exception(f"Formato de polinomio \"{func_str}\" incorrecto")
 
+    # convert coefs sympy numbers to float
+    coeffs = [float(c) for c in coeffs]
     return coeffs
 
 

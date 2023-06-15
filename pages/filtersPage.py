@@ -61,7 +61,18 @@ class FiltersPage(QWidget):
             title="Select Filter"
         )
 
+        self.data.on_filter_close = self.update_plot
+
+        def debug():
+            filterKeys = [f.key for f in self.data.filters]
+            filterNumDen = [(f.num, f.den) for f in self.data.filters]
+            print("self.data.F:", self.data.F.num, self.data.F.den)
+            print("self.data.filters:", filterKeys)
+            print("self.data.filters:", filterNumDen)
+
+        debugBtn = Button("Debug", on_click=debug)
         vlayout.addWidget(QLabel("Add Filters"))
+        vlayout.addWidget(debugBtn)
         vlayout.addWidget(self.filterMenu)
         vlayout.addWidget(self.filterList)
 
@@ -85,8 +96,12 @@ class FiltersPage(QWidget):
 
         self.setLayout(hlayout)
 
+    # def onFilterClose(self):
+
+
     def onFilterChoose(self):
         self.filterList.render_widgets()
+        print( self.data.F.num, self.data.F.den)
         if len(self.data.filters) > 0:
             self.selectedFilter = self.data.filters[-1]
             self.filterSettings.update(self.selectedFilter.params, self.selectedFilter.name + " Settings")
@@ -101,7 +116,13 @@ class FiltersPage(QWidget):
 
     def onFilterClick(self, idx, value):
         self.selectedFilter = self.data.filters[idx]
-        self.filterSettings.update(self.selectedFilter.params, self.selectedFilter.name + " Settings")
+        if self.selectedFilter.callback is not None:
+            self.selectedFilter.callback()
+            # hide the settings widget
+            self.filterSettings.setVisible(False)
+        else:
+            self.filterSettings.setVisible(True)
+            self.filterSettings.update(self.selectedFilter.params, self.selectedFilter.name + " Settings")
         print("click", idx, value)
 
     def onFilterDelete(self, idx, value):
@@ -118,6 +139,7 @@ class FiltersPage(QWidget):
 
 
     def computePlot(self, n=5000, x0=0.0, x1=6.0, base=10.0):
+        print("computePlot")
         # f0 = Param(-2.0, "Start Frequency", "Hz", range=[-3.0, 3.0])
         # f1 = Param(6.0, "End Frequency", "Hz", range=[4.0, 12.0])
 
@@ -132,7 +154,6 @@ class FiltersPage(QWidget):
         self.data.F = F
         self.data.H = F.transfer()
         _, mag, phase = signal.bode(self.data.H, wlog_x, n)
-
 
         return x, mag, phase
 

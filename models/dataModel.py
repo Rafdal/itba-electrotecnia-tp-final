@@ -9,6 +9,8 @@ class DataModel():
         self.H = signal.TransferFunction([1], [1])
         self.filters = []
 
+        self.on_filter_close = lambda: print("DataModel.on_filter_close()")
+
         self.signal_list = [
             Pulse(),
             Sinewave(),
@@ -76,6 +78,6 @@ class DataModel():
             },
             {
                 'name': 'Custom Filter',
-                'callback': lambda: self.filters.append(CustomFilter()),
+                'callback': lambda: self.filters.append(CustomFilter(self.on_filter_close)),
             },
         ]
