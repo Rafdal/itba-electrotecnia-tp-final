@@ -30,7 +30,7 @@ class SignalsPage(QWidget):
         self.data = data
 
 
-        self.signalPlotWidget = FunctionPlotNav("Amplitud", dragable=True, resetScaleButton=False, xlabel="Tiempo [s]")
+        self.signalPlotWidget = FunctionPlotNav("Amplitud", dragable=True, resetScaleButton=True, resetJustY=True, xlabel="Tiempo [s]")
         self.signalPlotWidget.rectPlot.plotLabels = ["Output", "Input"]
 
         # Init plot

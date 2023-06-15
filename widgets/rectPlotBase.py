@@ -234,7 +234,8 @@ class RectPlotBase(QWidget):
         # Redraw the canvas
         self.canvas.draw_idle()
 
-    def reset_plot(self):
-        self.ax.set_xlim(self.initial_xlim)
+    def reset_plot(self, justY=False):
+        if not justY:
+            self.ax.set_xlim(self.initial_xlim)
         self.ax.set_ylim(self.initial_ylim)
         self.canvas.draw_idle()

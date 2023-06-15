@@ -9,7 +9,8 @@ from libs.LTSpiceReader import ReadLTSpice
 data = ReadLTSpice(folder="data", idx=None)
 data.info() # Imprime información del archivo LTSpice (variables, casos, etc)
 
-plot_VL_C1 = [0, 4]
+# plot_VL_C1 = [0, 4]
+plot_VL_C1 = [1, 3]
 
 print(len(data.varListInfo))
 
@@ -93,15 +94,14 @@ for i in plot_VL_C1:
     else:
         if data.varListInfo[i]["symbol"] == "I":
             ax2 = ax1.twinx()
-            ax2.plot(data.time, data.varListData[i], linewidth=1.0, color=color, alpha=1.0, label=label)
+            ax2.plot(data.time[0:40], data.varListData[i][0:40], linewidth=1.0, color=color, alpha=1.0, label=label)
             # searchMaxMinInRange(data.time, data.varListData[i], 0.0, 0.005, ax=ax2, text = "down")
         else:
-            ax1.plot(data.time, data.varListData[i], linewidth=1.0, color=color, alpha=1.0, label=label)
+            ax1.plot(data.time[0:40], data.varListData[i][0:40], linewidth=1.0, color=color, alpha=1.0, label=label)
             # searchMaxMinInRange(data.time, data.varListData[i], 0.005, 0.030, ax=ax1, text = "up")
 
 
 
-plt.title("Descarga")
 if ax2 is not None:
     ax2.set_ylabel("Current (A)")  # Set the ylabel only if ax2 has been defined
 ax1.set_ylabel("Voltage (V)")

@@ -12,13 +12,15 @@ from PyQt5.QtWidgets import QSizePolicy
 
 class FunctionPlotNav(QWidget):
     def __init__(self, title = 'Title', dragable = False, scale = 'linear', postFix = None, 
-                 yInitRange=20.0, resetScaleButton = True, xlabel = None, plotLabels = []):
+                 yInitRange=20.0, resetScaleButton = True, resetJustY = False, xlabel = None, plotLabels = []):
         super().__init__()
 
         mainLayout = QVBoxLayout(self)
         mainLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         mainLayout.setContentsMargins(5, 5, 5, 5)
         mainLayout.setSpacing(0)
+
+        self.resetJustY = resetJustY
 
         frame = QFrame()
         frame.setFrameShape(QFrame.Shape.Box)
@@ -51,7 +53,7 @@ class FunctionPlotNav(QWidget):
        
         button3 = None
         if resetScaleButton:
-            button3 = Button("Reset Scale", None, on_click=lambda: self.rectPlot.reset_plot())
+            button3 = Button("Reset Scale", None, on_click=lambda: self.rectPlot.reset_plot(self.resetJustY))
         
         label = QLabel(title)
         label.setStyleSheet("""

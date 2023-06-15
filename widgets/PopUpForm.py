@@ -1,14 +1,16 @@
-from PyQt5.QtWidgets import QLabel, QDialog, QLineEdit, QPushButton, QVBoxLayout
+from PyQt5.QtWidgets import QLabel, QDialog, QLineEdit, QPushButton, QVBoxLayout, QMessageBox
 
 class PopUpForm(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle('PopUp Form')
+        self.setWindowTitle('Custom Filter Settings')
         self.resize(300, 100)
-        self.label1 = QLabel('Text1')
+        self.label1 = QLabel('Polinomio Numerador')
         self.textbox1 = QLineEdit(self)
-        self.label2 = QLabel('Text2')
+        self.textbox1.setPlaceholderText('ej: 3*s**2 + 2*s + 1500')
+        self.label2 = QLabel('Polinomio Denominador')
         self.textbox2 = QLineEdit(self)
+        self.textbox2.setPlaceholderText('ej: 0.6*s**2 - 0.2*s + 2300')
         self.button = QPushButton('Submit', self)
         self.button.clicked.connect(self.submit)
         layout = QVBoxLayout(self)
@@ -25,22 +27,10 @@ class PopUpForm(QDialog):
             self.callback(text1, text2)
         except Exception as e:
             print("DOMADO:", e)
+            # show a dialog with the error
+            QMessageBox.critical(self, 'Error', str(e))
         else:
             self.accept()
 
     def set_callback(self, callback):
         self.callback = callback
-
-from PyQt5.QtWidgets import QApplication
-if __name__ == '__main__':
-    app = QApplication([])
-    form = PopUpForm()
-    form.set_callback(lambda text1, text2: print(f'Text1: {text1}, Text2: {text2}'))
-    button = QPushButton('Show Form')
-    button.clicked.connect(form.show)
-    layout = QVBoxLayout()
-    layout.addWidget(button)
-    widget = QDialog()
-    widget.setLayout(layout)
-    widget.show()
-    app.exec_() 

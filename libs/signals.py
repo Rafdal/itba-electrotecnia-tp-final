@@ -9,7 +9,7 @@ class Pulse:
         self.name = "Pulso"
         self.params = {
             'A': Param(A, 'Amplitud', 'V'),
-            't_init': Param(1.0, 'Plot Start Time', 's', range=[0.0, 5.0]),
+            't_init': Param(1.0, 'Plot Start Time', 's', range=[0.0, 1.0]),
             't_stop': Param(10.0, 'Plot Stop Time', 's', range=[0.01, 30.0]),
         }
         pass
@@ -126,7 +126,7 @@ class SawtoothWave:
     
 
 class SenoidWithNoise:
-    def __init__(self, A=1.0, f=1.0, p=0.0, offset=0.0, noise=0.0, noiseFreq=400.0):
+    def __init__(self, A=1.0, f=100.0, p=0.0, offset=0.0, noise=0.23, noiseFreq=10000.0):
         self.key = "SinNoise"
         self.name = "Senoide con Ruido"
         self.params = {
@@ -135,8 +135,8 @@ class SenoidWithNoise:
             'p': Param(p, 'Fase', '°', range=[-180.0, 180.0]),
             'o': Param(offset, 'Offset', 'V', range=[-10.0, 10.0]),
             'n': Param(noise, 'Ruido', 'V', range=[0.0, 10.0]),
-            'f_n': Param(noiseFreq, 'Frecuencia Ruido', 'Hz', "log", [-2.0, 5.0]),
-            'n_stop': Param(10.0, 'n Períodos', 'T', range=[1.0, 30.0], n=1),
+            'f_n': Param(noiseFreq, 'Frecuencia Ruido', 'Hz', "log", [-2.0, 8.0]),
+            'n_stop': Param(3.0, 'n Períodos', 'T', range=[1.0, 30.0], n=1),
         }
 
     def __call__(self, t):
@@ -151,6 +151,6 @@ class SenoidWithNoise:
         phase = 2.0 * np.pi * f * t + (p * np.pi) / 180.0
 
         # calculate the value of the wave
-        value = A * np.sin(phase) + o + n * np.sin(2.0 * np.pi * f_n * t)
+        value = A * np.sin(phase) + o + n * (np.sin(2.0 * np.pi * f_n * t) - 1.0)
 
         return value

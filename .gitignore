@@ -3,3 +3,5 @@
 /frontend/__pycache__
 /widgets/__pycache__
 /*/__pycache__
+.vscode
+__pycache__

@@ -288,10 +288,8 @@ class HighPassNotch(Filter):
 
 
 from widgets.PopUpForm import PopUpForm
-from libs.polyFunc import get_poly_coeffs
+from libs.utils import get_poly_coeffs
 
-# FIXME: Todavia no anda muy bien
-# TODO: Falta poner los try catch para las excepciones
 class CustomFilter(Filter):
     def __init__(self, on_close=lambda: print("On Filter Close")):
         super().__init__()
