@@ -23,11 +23,16 @@ class ReadLTSpice:
         # parse the file
         self.l.parse()
 
+        print(self.l._mode)
+
         self.case_count = self.l.case_count
         self.varListNames = self.l.variables[1:]
         self.varListInfo = []
 
-        self.time = self.l.get_time()
+        if self.l._mode == "AC":
+            self.x = self.l.get_frequency()
+        else:
+            self.x = self.l.get_time()
 
         print("Warning: Usando interpolación de datos")
         for varName in self.varListNames:
@@ -35,8 +40,11 @@ class ReadLTSpice:
                 self.is_montecarlo = True
                 run = []
                 for i in range(self.case_count):
-                    # Al usar time=self.time, se interpola la señal para que tenga el mismo largo
-                    run.append(self.l.get_data(varName, case=i, time=self.time))
+                    # Al usar time=self.x, se interpola la señal para que tenga el mismo largo
+                    if self.l._mode == "AC":
+                        run.append(self.l.get_data(varName, case=i))
+                    else:
+                        run.append(self.l.get_data(varName, case=i, time=self.x))
                 self.varListData.append(run)
 
             else:
@@ -61,7 +69,7 @@ class ReadLTSpice:
                     "unit": "?",
                 })
 
-        self.data_points = len(self.time)
+        self.data_points = len(self.x)
 
     def getFilePath(self, folder, idx):
         # define the folder paths

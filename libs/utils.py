@@ -33,7 +33,7 @@ def get_poly_coeffs(func_str):
     return coeffs
 
 
-def searchMaxMinInRange(x, y, t0, t1, ax = None, text = None, axisFlag = "both", c='r', s=10):
+def searchMaxMinInRange(x, y, t0, t1, ax = None, text = None, returnAxis = "both", c=None, s=10, ignore = None):
     # Search for the local maximum and minimum values in the range
     # Return two lists with the point coordinates
 
@@ -60,25 +60,31 @@ def searchMaxMinInRange(x, y, t0, t1, ax = None, text = None, axisFlag = "both",
 
     if ax is not None:
         # Plot the maxima and minima as red and blue dots, respectively
-        for point in max_points:
-            ax.scatter(point[0], point[1], c=c, marker='o', s=s)
-            if text is not None:
-                if text == "up":
-                    ax.annotate(f'({point[0]:.2f}, {point[1]:.2f})', xy=(point[0], point[1]), xytext=(5, 5), textcoords='offset points')
-                else:
-                    ax.annotate(f'({point[0]:.2f}, {point[1]:.2f})', xy=(point[0], point[1]), xytext=(5, -15), textcoords='offset points')
-        for point in min_points:
-            ax.scatter(point[0], point[1], c=c, marker='o', s=s)
-            if text is not None:
-                if not text == "up":
-                    ax.annotate(f'({point[0]:.2f}, {point[1]:.2f})', xy=(point[0], point[1]), xytext=(5, 5), textcoords='offset points')
-                else:
-                    ax.annotate(f'({point[0]:.2f}, {point[1]:.2f})', xy=(point[0], point[1]), xytext=(5, -15), textcoords='offset points')
+        if not ignore == 'max':
+            for point in max_points:
+                if c is None:
+                    c = 'r'
+                ax.scatter(point[0], point[1], c=c, marker='o', s=s)
+                if text is not None:
+                    if text == "up":
+                        ax.annotate(f'({point[0]:.5f}, {point[1]:.5f})', xy=(point[0], point[1]), color=c, xytext=(5, 5), textcoords='offset points')
+                    else:
+                        ax.annotate(f'({point[0]:.5f}, {point[1]:.5f})', xy=(point[0], point[1]), color=c, xytext=(5, -15), textcoords='offset points')
+        if not ignore == 'min':
+            for point in min_points:
+                if c is None:
+                    c = 'b'
+                ax.scatter(point[0], point[1], c=c, marker='o', s=s)
+                if text is not None:
+                    if not text == "up":
+                        ax.annotate(f'({point[0]:.5f}, {point[1]:.5f})', xy=(point[0], point[1]), color=c , xytext=(5, 5), textcoords='offset points')
+                    else:
+                        ax.annotate(f'({point[0]:.5f}, {point[1]:.5f})', xy=(point[0], point[1]), color=c , xytext=(5, -15), textcoords='offset points')
 
-    if axisFlag == 'x':
+    if returnAxis == 'x':
         max_points = [point[0] for point in max_points]
         min_points = [point[0] for point in min_points]
-    elif axisFlag == 'y':
+    elif returnAxis == 'y':
         max_points = [point[1] for point in max_points]
         min_points = [point[1] for point in min_points]
 
