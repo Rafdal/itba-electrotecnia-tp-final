@@ -118,6 +118,7 @@ class FOAllPass(Filter):
         self.den = [1/w0, 1.0]
 
 
+
 class SOLowPass(Filter):
     def __init__(self, w0=450.0, xi=0.23):
         super().__init__()
@@ -181,7 +182,7 @@ class SOAllPass(Filter):
 
 
 class SOBandPass(Filter):
-    def __init__(self, w0=500.0, xi=0.5):
+    def __init__(self, w0=628.0, xi=0.5):
         super().__init__()
         self.key = "SOBandPass"
         self.name = "Second Order Band Pass"

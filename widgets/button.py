@@ -10,7 +10,8 @@ from PyQt5.QtCore import Qt
 
 class Button(QPushButton):
 
-    def __init__(self, text, parent=None, color="black", background_color = "white", radius=10,
+    def __init__(self, text, parent=None, color="black", background_color = "white", 
+                        radius=10,
                         shadow_color="grey", shadow_radius=9, hover_color="lightblue", 
                         click_color="grey", padding=6, on_click=lambda: print("Button Clicked")):
         super().__init__(text, parent)

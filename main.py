@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWidgets import QTabWidget
 
 from pages.filtersPage import FiltersPage
@@ -14,7 +14,7 @@ class ExampleApp(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle('Example App')
+        self.setWindowTitle('Simulador de Filtros')
         self.setGeometry(100, 100, 100, 100)
 
         tab_widget = QTabWidget()

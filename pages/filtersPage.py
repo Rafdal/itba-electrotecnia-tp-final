@@ -48,16 +48,20 @@ class FiltersPage(QWidget):
         self.title = "Filter Editor"
 
         self.filterSettings = DynamicSettings({}, lambda k,v: self.update_plot())
+        self.filterSettings.setMaximumWidth(400)
 
         self.filterList = DynamicWidgetList(self.data.filters, self.onFilterClick, self.onFilterDelete)
         self.filterList.setMinimumHeight(180)
         self.filterList.setMinimumWidth(150)
+        self.filterList.setMaximumWidth(400)
 
         self.filterMenu = DropDownMenu(
             options=self.data.filterOptions, 
             onChoose=self.onFilterChoose,
             title="Select Filter"
         )
+        self.filterMenu.setMinimumWidth(150)
+        self.filterMenu.setMaximumWidth(400)
 
         self.data.on_filter_close = self.update_plot
 
@@ -82,6 +86,7 @@ class FiltersPage(QWidget):
         hlayout.addLayout(vlayout)
         hlayout.addLayout(vlayoutPlots)
         hlayout.setStretch(1, 1)
+        hlayout.setStretch(2, 1)
 
         self.setLayout(hlayout)
 
