@@ -139,7 +139,8 @@ class FiltersPage(QWidget):
 
         x = np.linspace(x0, x1, n)
         flog_x = base**x
-        wlog_x = 2.0 * np.pi * flog_x
+        # wlog_x = 2.0 * np.pi * flog_x
+        wlog_x = base**x
 
         F = Filter()
         for f in self.data.filters:
