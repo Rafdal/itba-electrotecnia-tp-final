@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QTabWidget
 from pages.filtersPage import FiltersPage
 from pages.signalsPage import SignalsPage
 
-
 from models.dataModel import DataModel
 
 class ExampleApp(QMainWindow):
@@ -33,9 +32,7 @@ class ExampleApp(QMainWindow):
 
         # set tab content background color
         tab_widget.setStyleSheet("QWidget { background-color: #f5f5f5 }")
-
         tab_widget.currentChanged.connect(self.tab_changed)
-
 
         self.show()
 
