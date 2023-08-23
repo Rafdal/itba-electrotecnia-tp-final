@@ -23,7 +23,7 @@ gain = df["g"].values # Obtiene el vector de corriente en el capacitor
 # Create a figure and two axes
 fig, ax1 = plt.subplots()
 
-ax1.semilogx(frec, gain, color='tab:red', label='No ideal', linestyle='-')
+ax1.semilogx(frec, gain, color='tab:red', label='No ideal', marker='o', markersize=3.5, markerfacecolor='white', markeredgewidth=1.5, markeredgecolor='tab:red')
 ax1.tick_params(axis='y', labelcolor='tab:red')
 ax1.grid(True, which="both", ls="-", axis="x")
 ax1.grid(True, which="both", ls="-", axis="y")
