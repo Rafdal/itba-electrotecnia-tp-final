@@ -9,13 +9,10 @@ import os
 filepath = os.path.join(os.getcwd(), 'data', '2a_bodes.raw')
 
 data = ltspice.Ltspice(filepath) # Carga el archivo .raw
-
 data.parse() # Analiza el archivo .raw
 
 # get variables names and info
 print(data.variables) # Muestra las variables disponibles
-
-
 
 frec = data.get_frequency() # Obtiene el vector de tiempo
 vin = data.get_data('V(vin)')

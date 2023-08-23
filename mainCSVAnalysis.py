@@ -22,8 +22,8 @@ df = df.apply(pd.to_numeric, errors='coerce').dropna()
 time_offset = df["x-axis"].values[0]
 
 time = -time_offset + df["x-axis"].values # Obtiene el vector de tiempo
-vin = df["1"].values # Obtiene el vector de corriente en el capacitor
-vout = df["2"].values # Obtiene el vector de corriente en el capacitor
+vin = df[plot1_name].values # Obtiene el vector de corriente en el capacitor
+vout = df[plot2_name].values # Obtiene el vector de corriente en el capacitor
 
 # divide the time vector by 10**power
 time = time / (10**power)
