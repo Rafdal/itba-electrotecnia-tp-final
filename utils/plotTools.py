@@ -27,7 +27,8 @@ def plotBode(e1, e2, H, points = 1000):
     ax2.tick_params(axis='y', labelcolor='tab:blue')
     ax2.grid(True, which="major", ls="--", color='black', alpha=1.0)
 
-    ax1.xaxis.set_minor_locator(plt.LogLocator(base=10, subs='all', numticks=10))
-    ax1.xaxis.set_major_locator(plt.LogLocator(base=10, numticks=4))
+    ax1.xaxis.set_minor_locator(plt.LogLocator(base=10, subs='all', numticks=100))
+    ax1.xaxis.set_major_locator(plt.LogLocator(base=10, numticks=30))
 
+    plt.tight_layout()
     plt.show()
