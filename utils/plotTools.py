@@ -1,5 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from utils.plotUtils import *
+
+
+def OpAmpInv(s, KI, A0, wb):
+    def KNI(s):
+        return 1 - KI(s)
+
+    def AvErr(s):
+        return 1/(1 + KNI(s)/A0)
+
+    def PoleErr(s):
+        return 1/(1 + (s*KNI(s))/(wb*A0))
+    
+    return KI(s)*AvErr(s)*PoleErr(s)
 
 def plotBode(e1, e2, H, points = 1000):
     w = np.logspace(e1, e2, points)
@@ -8,6 +22,8 @@ def plotBode(e1, e2, H, points = 1000):
     s = 1j * w
     Hs = H(s)
     gain = 20 * np.log10(np.abs(Hs))
+    phase = fixPhaseJumps(np.angle(Hs, deg=True))
+
 
     # Create a figure and two axes
     fig, ax1 = plt.subplots()
@@ -16,7 +32,7 @@ def plotBode(e1, e2, H, points = 1000):
     ax1.semilogx(w, gain, color='tab:red', linestyle='-')
     ax1.set_ylabel('Magnitude')
 
-    ax2.semilogx(w, np.angle(Hs, deg=True), lw=2.5 , color='tab:blue', linestyle='--')
+    ax2.semilogx(w, phase, lw=2.5 , color='tab:blue', linestyle='--')
     ax2.set_xlabel('Frequency (rad/s)')
     ax2.set_ylabel('Phase (deg)')
 

@@ -10,19 +10,14 @@ C = 10*10**(-9)
 A0 = 223000
 wb = 15 * 2 * np.pi
 
-def KI(s):
+def ki_der(s):
     return (-s*R*C)/(1+s*r*C)
 
-def KNI(s):
-    return 1 - KI(s)
-
-def AvErr(s):
-    return 1/(1 + KNI(s)/A0)
-
-def 
-
 def H(s):
-    return KI(s)
+    return OpAmpInv(s, ki_der, A0, wb)
 
 # plot the bode plot
-plotBode(-2, 7, H)
+plotBode(-2, 8, H)
+
+
+
