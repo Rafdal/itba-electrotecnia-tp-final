@@ -19,5 +19,7 @@ def H(s):
 # plot the bode plot
 plotBode(-2, 8, H)
 
+def pole_err(s):
+    return 1/(1 + s/())
 
 

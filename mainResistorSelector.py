@@ -2,15 +2,18 @@ import itertools
 
 e12series = ['10','12','15','18','22','27','33','39','47','56','68','82']
 
-
+e24series = {"10", "11", "12", "13", "15", "16", "18", "20", "22", "24", "27",
+            "30", "33", "36", "39", "43", "47", "51", "56", "62", "68", "75", "82", "91"}
 
 powerExpRange = range(-3, 4)
+
+series = e12series
 
 def find_closest_combination(target_num):
     closest_combination = None
     closest_diff = float('inf')
-    for r in range(2, len(e12series) + 1):
-        for combination in itertools.combinations_with_replacement(e12series, r):
+    for r in range(2, len(series) + 1):
+        for combination in itertools.combinations_with_replacement(series, r):
             combination_num = sum(map(int, combination))
             for i in powerExpRange:
                 num = combination_num * (10 ** i)
@@ -26,8 +29,8 @@ def find_closest_combination(target_num):
 def find_efficient_combination(target_num):
     efficient_combination = None
     efficient_count = float('inf')
-    for r in range(2, len(e12series) + 1):
-        for combination in itertools.combinations_with_replacement(e12series, r):
+    for r in range(2, len(series) + 1):
+        for combination in itertools.combinations_with_replacement(series, r):
             combination_num = sum(map(int, combination))
             for i in powerExpRange:
                 num = combination_num * (10 ** i)
@@ -50,7 +53,7 @@ def find_efficient_combination(target_num):
         break
     return efficient_combination, efficient_power
 
-target_num = 5100
+target_num = 2500
 closest_combination, closest_power = find_closest_combination(target_num)
 efficient_combination, efficient_power = find_efficient_combination(target_num)
 print(f"The closest combination to {target_num} is {closest_combination} with a power multiplier of 10^{closest_power}")
