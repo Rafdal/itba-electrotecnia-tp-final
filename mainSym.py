@@ -19,7 +19,8 @@ def KNI(s):
 def AvErr(s):
     return 1/(1 + KNI(s)/A0)
 
-def 
+def pole_err(s):
+    return 1/(1 + s/())
 
 def H(s):
     return KI(s)

@@ -2,6 +2,7 @@ import numpy as np
 import csv
 
 def getGainPhase(data):
+    print("data shape:", data.shape)
     gain = 20*np.log10(np.abs(data))
     phase = fixPhaseJumps(np.angle(data, deg=True))
     return gain, phase

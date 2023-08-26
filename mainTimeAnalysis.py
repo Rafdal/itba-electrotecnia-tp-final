@@ -6,7 +6,7 @@ from utils.plotUtils import *
 
 import os
 
-filepath = os.path.join(os.getcwd(), 'data', '3_integ_rect.raw')
+filepath = os.path.join(os.getcwd(), 'data', '3_int_con_offset.raw')
 
 data = ltspice.Ltspice(filepath) # Carga el archivo .raw
 
