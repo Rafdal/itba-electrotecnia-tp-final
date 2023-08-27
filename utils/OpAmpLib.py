@@ -1,58 +1,63 @@
-import numpy as np
 import sympy as sp
+import numpy as np
 
-class OpAmp:
-    def __init__(self, s=None):
-        self.ki = sp.symbols('ki', real=False)
+class OpAmp():
+    def __init__(self, s = sp.symbols('s', real=False)) -> None:
+        self.s = s
+        self.k = sp.symbols('k', real=False)
         self.kni = sp.symbols('kni', real=False)
-        self.err_a0 = 1
-        self.err_polo = 1
-        self.a0_val = 1e+9
-        self.wb_val = 10*2*sp.pi
-        if s is None:
-            self.s = sp.symbols('s', real=False)
-        else:
-            self.s = s
-        self.a0, self.wb = sp.symbols('a0 wb', positive=True, real=True)
+        self.a0 = sp.symbols('a0', positive=True, real=True)
+        self.wb = sp.symbols('wb', positive=True, real=True)
 
-    def add_ki(self, ki):
-        self.ki = ki
-        self.kni = 1 - self.ki
-        self.k = self.ki
+        self.a0_val = 223000 # TL082
+        self.wb_val = 2*sp.pi*15 # TL082
 
-    def add_kni(self, kni):
+    def set_ki(self, ki):
+        self.k = ki
+        self.kni = 1 - ki
+    
+    def set_kni(self, kni):
+        self.k = kni
         self.kni = kni
-        self.k = self.kni
-    
-    def add_err_a0(self, a0_val):
-        self.err_a0 = 1 / (1 + self.kni / self.a0)
-        self.a0_val = a0_val
-    
-    def add_err_polo(self, wb_val):
-        self.err_polo = 1 / (1 + (self.s * self.kni) / (self.wb * self.a0))
-        self.wb_val = wb_val
-    
-    def get_h(self):
-        self.h = self.k * self.err_a0 * self.err_polo
-        self.h = sp.simplify(self.h)
-        return self.h
 
-    def evaluate(self):
-        self.h = self.get_h()
-        self.h = self.h.subs(self.a0, self.a0_val).subs(self.wb, self.wb_val)
-        self.h = sp.simplify(self.h)
+    def get_h(self):
+        a = self.a0 / (1 + self.s / self.wb)
+        err_a = 1/(1 + self.kni/a)
+        self.h = sp.simplify(self.k * err_a)
         return self.h
     
+    def pretty_print(self):
+        num = sp.numer(self.get_h())
+        den = sp.denom(self.get_h())
+        poly = sp.Poly(den, self.s)
+        den = poly.expr
+        indep_term = poly.TC()
+
+        coeffs = poly.coeffs()
+        for i in range(0, poly.length()):
+            coeffs[i] = sp.simplify(sp.simplify(coeffs[i])/sp.simplify(indep_term))
+
+        poly = sp.Poly.from_list(coeffs, s)
+
+        print('H(s) = \n')
+        sp.pretty_print( sp.simplify(num/self.wb) / (sp.simplify(indep_term/self.wb) * poly.expr), wrap_line=False)
+
+    def eval(self, symbols, values):
+        self.h = self.get_h()
+        self.h = self.h.subs(symbols, values)
+        self.h_func = sp.lambdify(self.s, self.h, 'numpy')
+        return self.h_func
+
 
 R, C, r = sp.symbols('R C r', positive=True, real=True)
 s = sp.symbols('s', real=False)
 
 # Define the equation to be simplified
-ki = -s*R*C
+k_der = -s*R*C
+k_int = -1/(s*R*C)
+k_der_comp = -s*R*C/(1 + s*r*C)
+k_int_comp = -r/(R*(1 + s*r*C))
 
-der = OpAmp(s) # derivador sin compensar
-der.add_ki(ki)
-der.add_err_a0(223000)
-der.add_err_polo(2*sp.pi*15)
-
-print(der.get_h())
+opamp = OpAmp(s)
+opamp.set_ki(k_der)
+opamp.pretty_print()

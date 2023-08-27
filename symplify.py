@@ -1,26 +1,51 @@
-from sympy import *
+import sympy as sp
 
 # Define the symbols used in the equation
-s = symbols('s', real=False)
-R, C, r = symbols('R C r', positive=True, real=True)
-a0, wb = symbols('a0 wb', positive=True, real=True)
+s = sp.symbols('s', real=False)
+R, C, r = sp.symbols('R C r', positive=True, real=True)
+a0, wb = sp.symbols('a0 wb', positive=True, real=True)
 
 # Define the equation to be simplified
-ki = -s*R*C
-kni = 1 - ki
+k_der = -s*R*C
+k_int = -1/(s*R*C)
+k_der_comp = -s*R*C/(1 + s*r*C)
+k_int_comp = -r/(R*(1 + s*r*C))
 
-arr_a0 = 1/(1 + kni/a0)
-err_polo = 1/(1 + (s*kni)/(wb*a0))
+# ki = k_int_comp
+# kni = 1 - ki
+ki = sp.symbols('ki', real=False)
+kni = sp.symbols('kni', real=False)
 
-h = ki * arr_a0 * err_polo
+# err_polo = 1/(1 + (s*kni)/(wb*a0))
+
+a = a0 / (1 + s / wb)
+err_a = 1/(1 + kni/a)
+h = ki * err_a
 
 # Simplify the equation
-simplified_h = simplify(h)
+simplified_h = sp.simplify(h)
+
+num = sp.numer(simplified_h)
+den = sp.denom(simplified_h)
+poly = sp.Poly(den, s)
+den = poly.expr
+indep_term = poly.TC()
+# print("indep_term:", indep_term)
+
+coeffs = poly.coeffs()
+# Remove the independent term for each coefficient of the polynomial, iterate over the coefficients
+for i in range(0, poly.length()):
+    coeffs[i] = sp.simplify(sp.simplify(coeffs[i])/sp.simplify(indep_term))
+
+poly = sp.Poly.from_list(coeffs, s)
+
+
+# print("den:", poly.expr)
 
 # Print the original and simplified equations
 print('Original equation:', h)
 print('Simplified equation:', simplified_h)
+print()
 
-
-
--C*R*a0**2*s*wb/((a0*wb + s*(C*R*s + 1))*(C*R*s + a0 + 1))
+print('H(s) = \n')
+sp.pretty_print(num / (indep_term * poly.expr), wrap_line=False)
