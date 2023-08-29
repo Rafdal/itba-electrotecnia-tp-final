@@ -6,7 +6,7 @@ from utils.plotUtils import *
 import pandas as pd
 import os
 
-power = - # set the 10 power variable for scale multiplier
+power = -5 # set the 10 power variable for scale multiplier
 ticks_per_decade = 4 # set the number of ticks per decade
 plot1_name = "1" 
 plot2_name = "2"

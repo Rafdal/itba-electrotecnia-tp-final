@@ -10,7 +10,7 @@ class OpAmp():
         self.a0 = sp.symbols('a0', positive=True, real=True)
         self.wb = sp.symbols('wb', positive=True, real=True)
 
-        self.a0_val = 223000 # TL082
+        self.a0_val = 224000 # TL082
         self.wb_val = 2*sp.pi*15 # TL082
 
     def set_ki(self, ki):
@@ -47,6 +47,17 @@ class OpAmp():
         print('H(s) = \n')
         print(sp.pretty(self.pretty(), wrap_line=False))
 
+    # Evalua la funcion H(s) asumiendo Avol = inf
+    def eval_ideal(self, symbols, values, s_vals=None):
+        k = self.k
+        for s, v in zip(symbols, values):
+            k = k.subs(s, v)
+        if s_vals is None:
+            return k
+        
+        func = sp.lambdify(self.s, k, 'numpy')
+        return func(s_vals)
+    
     def eval(self, symbols, values, s_vals=None):
         self.h = self.get_h()
         # add [a0, wb] to symbols and values
@@ -78,20 +89,18 @@ k_int = -1/(s*R*C)
 k_der_comp = -s*R*C/(1 + s*r*C)
 k_int_comp = -r/(R*(1 + s*r*C))
 
+k = k_der
+
 opamp = OpAmp(s)
-opamp.set_ki(k_int)
-
-print("h: ", opamp.pretty())
-
-a0 = opamp.a0
-wb = opamp.wb
-eq = (C*R*a0*wb + C*R*wb + 1)/wb
-# Simplify the equation
-eq_s = sp.simplify(eq)
-print("eq_s: ", eq_s)
+opamp.set_ki(k_int_comp)
 
 opamp.pretty_print()
 
 # Define a logspace vector for the frequency used with the s complex variable
-# frec = np.logspace(-4, 6, 5000)
-# opamp.plot(frec, [R, C, r], RCr_values)
+f = np.logspace(-4, 8, 6000)
+s_val = 2*np.pi*f*1j
+
+h_data = opamp.eval([R, C, r], RCr_values, s_val)
+h_data_id = opamp.eval_ideal([R, C, r], RCr_values, s_val)
+
+plotBode([h_data, h_data_id], f)
