@@ -6,13 +6,13 @@ from utils.plotUtils import *
 import pandas as pd
 import os
 
-power = -5 # set the 10 power variable for scale multiplier
+power = -4 # set the 10 power variable for scale multiplier
 ticks_per_decade = 4 # set the number of ticks per decade
 plot1_name = "1" 
 plot2_name = "2"
 x_axis_name = "x-axis"
 
-filepath = os.path.join(os.getcwd(), 'data', '6_int_comp_r5k1_.csv')
+filepath = os.path.join(os.getcwd(), 'data', '3_der_triang_osc.csv')
 
 
 # Read CSV file into pandas dataframe
@@ -40,8 +40,9 @@ plt.legend()
 plt.grid(True, which="both", ls="-", axis="both")
 
 # set the x-axis major tick locator
-plt.gca().yaxis.set_major_locator(plt.MultipleLocator(1))
 plt.gca().xaxis.set_major_locator(plt.MultipleLocator(1/ticks_per_decade))
+plt.gca().xaxis.set_minor_locator(plt.MultipleLocator(1/(ticks_per_decade*2)))
+plt.gca().yaxis.set_major_locator(plt.MultipleLocator(2))
 plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(1))
 
 # format the x-axis tick labels with a power of 10 multiplier and 3 significant figures

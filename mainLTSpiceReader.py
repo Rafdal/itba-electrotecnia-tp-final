@@ -6,7 +6,7 @@ from utils.plotUtils import *
 
 import os
 
-filepath = os.path.join(os.getcwd(), 'data', 'Zin1.raw')
+filepath = os.path.join(os.getcwd(), 'data', 'Zin2.raw')
 
 data = ltspice.Ltspice(filepath) # Carga el archivo .raw
 data.parse() # Analiza el archivo .raw
@@ -25,7 +25,7 @@ Zin = np.divide(Vin, I_in)
 # [frec, Zin] = constrainData(start = 0.3, end = 0.85, data=[frec, Zin])
 
 # constrain frec
-[frec, Zin] = constrainFrec(start = 100e+3, end = 107e+3, data=[frec, Zin])
+[frec, Zin] = constrainFrec(start = 1e-1, end = 1e+6, data=[frec, Zin])
 
 mag = np.abs(Zin)
 phase = fixPhaseJumps(np.angle(Zin, deg=True))
@@ -53,8 +53,8 @@ ax1.yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
 # Set axis locators
 ax1.xaxis.set_minor_locator(plt.LogLocator(base=10, subs='all', numticks=200))
 ax1.xaxis.set_major_locator(plt.LogLocator(base=10, numticks=50))
-ax1.xaxis.set_major_formatter(ticker.EngFormatter(sep=''))
-ax1.xaxis.set_minor_formatter(ticker.EngFormatter(sep=''))
+# ax1.xaxis.set_major_formatter(ticker.EngFormatter(sep=''))
+# ax1.xaxis.set_minor_formatter(ticker.EngFormatter(sep=''))
 
 # Set the labels
 ax1.set_xlabel('Frecuencia $[Hz]$')

@@ -105,7 +105,7 @@ k_int_comp = -r/(R*(1 + s*r*C))
 k = k_der
 
 opamp = OpAmp(s)
-opamp.set_ki(k_int)
+opamp.set_ki(k_der)
 
 opamp.pretty_print()
 
