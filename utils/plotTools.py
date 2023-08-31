@@ -54,9 +54,10 @@ def plotBode(h_data, frec, names=["", "Ideal"]):
     legend_lines = [Line2D([0], [0], color='tab:red', lw=2, linestyle=line_styles[i]) for i in range(len(h_data))]
     legend_lines += [Line2D([0], [0], color='tab:blue', lw=2, linestyle=line_styles[i]) for i in range(len(h_data))]
     legend_labels = ['Ganancia {}'.format(names[i]) for i in range(len(h_data))] + ['Fase {}'.format(names[i]) for i in range(len(h_data))]
-    plt.legend(legend_lines, legend_labels, loc='upper right')
+    plt.legend(legend_lines, legend_labels, loc='center left')
 
     ax1.set_xlabel('Frecuencia $[Hz]$')
-    # plt.tight_layout()
-    # plt.subplots_adjust(top=0.961, bottom=0.163, left=0.085, right=0.902, hspace=0.2, wspace=0.2)
+
+    # set axis limits
+    ax1.set_xlim(left=min(frec), right=max(frec))
     plt.show()

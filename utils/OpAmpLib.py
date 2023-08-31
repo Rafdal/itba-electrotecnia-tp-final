@@ -107,13 +107,13 @@ k = k_der
 opamp = OpAmp(s)
 opamp.set_ki(k_der)
 
-opamp.pretty_print()
+# opamp.pretty_print()
 
 # Define a logspace vector for the frequency used with the s complex variable
-# f = np.logspace(-4, 8, 6000)
-# s_val = 2*np.pi*f*1j
+f = np.logspace(-0, 7, 6000)
+s_val = 2*np.pi*f*1j
 
-# h_data = opamp.eval([R, C, r], RCr_values, s_val)
-# h_data_id = opamp.eval_ideal([R, C, r], RCr_values, s_val)
+h_data = opamp.eval([R, C, r], RCr_values, s_val)
+h_data_id = opamp.eval_ideal([R, C, r], RCr_values, s_val)
 
-# plotBode([h_data, h_data_id], f)
+plotBode([h_data, h_data_id], f)

@@ -46,13 +46,19 @@ def constrainFrec(start = None, end = None, data=[]):
     return new_data
 
 def constrainData(start = 0, end = 1.0, data=[]):
+
+    # order data by first array in ascending order
+    data = np.array(data)
+    data = data[:, data[0].argsort()]
+
     # constrain data points to percentage of the total
     size = len(data[0])
-    start = int(size * 0.65)
-    end = int(size * 0.85)
+    start = int(size * start)
+    end = int(size * end)
+    new_data = []
     for arr in data:
-        arr = arr[start:end]
-    return data
+        new_data.append(arr[start:end])
+    return new_data
 
 def exportCSV(filename, npArrs = (), headers = []):
     # Define the file path and name
