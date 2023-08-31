@@ -6,13 +6,13 @@ from utils.plotUtils import *
 import pandas as pd
 import os
 
-power = -4 # set the 10 power variable for scale multiplier
+power = -2 # set the 10 power variable for scale multiplier
 ticks_per_decade = 4 # set the number of ticks per decade
 plot1_name = "1" 
 plot2_name = "2"
 x_axis_name = "x-axis"
 
-filepath = os.path.join(os.getcwd(), 'data', '3_der_triang_osc.csv')
+filepath = os.path.join(os.getcwd(), 'data', 'x_der_comp_r5k1.csv')
 
 
 # Read CSV file into pandas dataframe
@@ -27,39 +27,46 @@ df = df.apply(pd.to_numeric, errors='coerce').dropna()
 time_offset = df[x_axis_name].values[0]
 
 time = (-time_offset) + df[x_axis_name].values # Obtiene el vector de tiempo
-vin = df[plot1_name].values # Obtiene el vector de corriente en el capacitor
-vout = df[plot2_name].values # Obtiene el vector de corriente en el capacitor
+vin = df[plot1_name].values * 2 # Obtiene el vector de corriente en el capacitor
+vout = df[plot2_name].values * 2 # Obtiene el vector de corriente en el capacitor
 
 # divide the time vector by 10**power
 time = time / (10**power)
 
 # plot data
-plt.plot(time, vin, label='Vin')
-plt.plot(time, vout, label='Vout')
-plt.legend()
-plt.grid(True, which="both", ls="-", axis="both")
+fig, ax1 = plt.subplots()
+ax2 = ax1.twinx()
+ax1.plot(time, vin, label='Vin', color='tab:blue')
+ax2.plot(time, vout, label='Vout', color='tab:orange')
+ax1.legend(loc='upper left')
+ax2.legend(loc='lower right')
+ax1.grid(True, which="both", ls="-", axis="both")
+ax2.grid(True, which="both", ls="-", axis="both")
+
+ax1.tick_params(axis='y', labelcolor='tab:blue')
+ax2.tick_params(axis='y', labelcolor='tab:orange')
 
 # set the x-axis major tick locator
-plt.gca().xaxis.set_major_locator(plt.MultipleLocator(1/ticks_per_decade))
-plt.gca().xaxis.set_minor_locator(plt.MultipleLocator(1/(ticks_per_decade*2)))
-plt.gca().yaxis.set_major_locator(plt.MultipleLocator(2))
-plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(1))
+ax1.xaxis.set_major_locator(plt.MultipleLocator(1/ticks_per_decade))
+ax1.xaxis.set_minor_locator(plt.MultipleLocator(1/(ticks_per_decade*2)))
+ax2.yaxis.set_major_locator(plt.MultipleLocator(0.0025))
+# ax1.yaxis.set_minor_locator(plt.MultipleLocator(1))
 
 # format the x-axis tick labels with a power of 10 multiplier and 3 significant figures
 format_x = ticker.ScalarFormatter(useMathText=True)
 format_y = ticker.ScalarFormatter(useMathText=True)
-plt.gca().xaxis.set_major_formatter(format_x)
-plt.gca().yaxis.set_major_formatter(format_y)
+ax1.xaxis.set_major_formatter(format_x)
+ax1.yaxis.set_major_formatter(format_y)
 # set the x-axis limits to start from 0
-plt.gca().set_xlim(left=0, right=max(time))
+ax1.set_xlim(left=0, right=max(time))
 
 # set the x-axis label with a power of 10 multiplier
-plt.gca().set_xlabel(f'Tiempo $[s]$')
-plt.gca().set_ylabel(f'Tensión $[V]$')
+ax1.set_xlabel(f'Tiempo $[s]$')
+ax1.set_ylabel(f'Tensión $[V]$')
 
 # add a text label showing the scale multiplier
-plt.gca().text(1.06, -0.08, f'$\\cdot 10^{{{power}}}$', transform=plt.gca().transAxes,
-        ha='right', va='bottom', fontsize=10)
+ax1.text(1.07, -0.13, f'$\\cdot 10^{{{power}}}$', transform=plt.gca().transAxes,
+        ha='right', va='bottom', fontsize=11)
 
 # ax1.yaxis.set_major_locator(plt.LogLocator(base=10, numticks=50))
 

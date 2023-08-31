@@ -9,7 +9,8 @@ import os
 filepath = os.path.join(os.getcwd(), 'data', '3_int_cuad_sim.raw')
 
 power = -4 # set the 10 power variable for scale multiplier
-ticks_per_decade = 4 # set the number of ticks per unit
+ticks_per_decade = 1 # set the number of ticks per unit
+minor_ticks_between = 3
 
 data = ltspice.Ltspice(filepath) # Carga el archivo .raw
 
@@ -36,7 +37,7 @@ plt.grid(True, which="both", ls="-", axis="both")
 
 # set the x-axis major tick locator
 plt.gca().xaxis.set_major_locator(plt.MultipleLocator(1/ticks_per_decade))
-plt.gca().xaxis.set_minor_locator(plt.MultipleLocator(1/(ticks_per_decade*2)))
+plt.gca().xaxis.set_minor_locator(plt.MultipleLocator(1/(ticks_per_decade*(minor_ticks_between+1))))
 plt.gca().yaxis.set_major_locator(plt.MultipleLocator(2))
 plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(1))
 
@@ -54,7 +55,7 @@ plt.gca().set_ylabel(f'Tensión $[V]$')
 
 # add a text label showing the scale multiplier
 plt.gca().text(1.06, -0.12, f'$\\cdot 10^{{{power}}}$', transform=plt.gca().transAxes,
-        ha='right', va='bottom', fontsize=11)
+        ha='right', va='bottom', fontsize=12)
 
 # ax1.yaxis.set_major_locator(plt.LogLocator(base=10, numticks=50))
 
