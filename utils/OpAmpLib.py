@@ -54,6 +54,10 @@ class OpAmp():
 
 
         h_pretty = sp.simplify(num/self.wb) / (sp.simplify(indep_term/self.wb) * poly.expr)
+
+        # print LaTeX
+        print(sp.latex(h_pretty))
+
         return h_pretty
     
     def pretty_print(self):
@@ -105,15 +109,15 @@ k_int_comp = -r/(R*(1 + s*r*C))
 # opampId = OpAmp(s)
 # opampId.set_ki(k_int)
 opamp = OpAmp(s)
-opamp.set_ki(k_der_comp)
+opamp.set_ki(k_int_comp)
 
 opamp.pretty_print()
 
 # Define a logspace vector for the frequency used with the s complex variable
-# f = np.logspace(4, 6, 6000)
-# s_val = 2*np.pi*f*1j
+f = np.logspace(4, 6, 6000)
+s_val = 2*np.pi*f*1j
 
-# h_data = opamp.eval([R, C, r], RCr_values, s_val)
+h_data = opamp.eval([R, C, r], RCr_values, s_val)
 # h_data_id = opampId.eval_ideal([R, C, r], RCr_values, s_val)
 
-# plotBode([h_data, h_data_id], f)
+plotBode([h_data], f)
