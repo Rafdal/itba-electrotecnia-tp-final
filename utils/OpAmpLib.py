@@ -2,6 +2,16 @@ import sympy as sp
 import numpy as np
 from plotTools import plotBode
 
+def Lambdify(s, expr, symbols, values, s_vals=None):
+    for sym, v in zip(symbols, values):
+        expr = expr.subs(sym, v)
+
+    if s_vals is None:
+        return expr
+    
+    func = sp.lambdify(s, expr, 'numpy')
+    return func(s_vals)
+
 class OpAmp():
     def __init__(self, s = sp.symbols('s', real=False)) -> None:
         self.s = s
@@ -54,6 +64,10 @@ class OpAmp():
 
 
         h_pretty = sp.simplify(num/self.wb) / (sp.simplify(indep_term/self.wb) * poly.expr)
+
+        # print LaTeX
+        print(sp.latex(h_pretty))
+
         return h_pretty
     
     def pretty_print(self):
@@ -63,27 +77,18 @@ class OpAmp():
     # Evalua la funcion H(s) asumiendo Avol = inf
     def eval_ideal(self, symbols, values, s_vals=None):
         k = self.k
-        for s, v in zip(symbols, values):
-            k = k.subs(s, v)
-        if s_vals is None:
-            return k
         
-        func = sp.lambdify(self.s, k, 'numpy')
-        return func(s_vals)
+        return Lambdify(self.s, k, symbols, values, s_vals)
     
+
+
     def eval(self, symbols, values, s_vals=None):
         self.h = self.get_h()
         # add [a0, wb] to symbols and values
         symbols = [*symbols, self.a0, self.wb]
         values = [*values, self.a0_val, self.wb_val]
 
-        for s, v in zip(symbols, values):
-            self.h = self.h.subs(s, v)
-        if s_vals is None:
-            return self.h
-        
-        func = sp.lambdify(self.s, self.h, 'numpy')
-        return func(s_vals)
+        return Lambdify(self.s, self.h, symbols, values, s_vals)
     
     def plot(self, f, symbols, values):
         s_val = 2*np.pi*f*1j
@@ -105,15 +110,28 @@ k_int_comp = -r/(R*(1 + s*r*C))
 # opampId = OpAmp(s)
 # opampId.set_ki(k_int)
 opamp = OpAmp(s)
-opamp.set_ki(k_der_comp)
+opamp.set_ki(k_int)
 
 opamp.pretty_print()
 
 # Define a logspace vector for the frequency used with the s complex variable
-f = np.logspace(4, 6, 6000)
+f = np.logspace(-4, 1, 6000)
 s_val = 2*np.pi*f*1j
 
+h_fun = opamp.eval([R, C, r], RCr_values)
 h_data = opamp.eval([R, C, r], RCr_values, s_val)
+
 # h_data_id = opampId.eval_ideal([R, C, r], RCr_values, s_val)
 
-plotBode([h_data], f)
+Avol = opamp.a0 / (1 + s / opamp.wb)
+
+Z1 = R
+
+Zi = Z1 / (1 + h_fun/Avol)
+
+# append a0_val and wb_val to RCr_values
+RCr_values = [*RCr_values, opamp.a0_val, opamp.wb_val]
+Zin_d = Lambdify(s, Zi, [R, C, r, opamp.a0, opamp.wb], RCr_values, s_val)
+Avol_d = Lambdify(s, Avol, [opamp.a0, opamp.wb], [opamp.a0_val, opamp.wb_val], s_val)
+
+plotBode([Zin_d, h_data, Avol_d], f)
