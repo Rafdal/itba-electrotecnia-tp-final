@@ -10,7 +10,7 @@ from matplotlib.lines import Line2D
 # hspace=0.2,
 # wspace=0.2
 
-def plotBode(h_data, frec, names=["", "Ideal"]):
+def plotBode(h_data, frec, names=["", "Ideal","A1", "A2"]):
     # check if h_data is a list
     if not isinstance(h_data, list):
         h_data = [h_data]
@@ -47,8 +47,8 @@ def plotBode(h_data, frec, names=["", "Ideal"]):
     ax1.xaxis.set_major_locator(plt.LogLocator(base=10, numticks=100))
 
     # set ticks for ax2 y axis
-    ax2.yaxis.set_major_locator(plt.MultipleLocator(5))
-    ax1.yaxis.set_major_locator(plt.MultipleLocator(20))
+    ax2.yaxis.set_major_locator(plt.MultipleLocator(15))
+    # ax1.yaxis.set_major_locator(plt.MultipleLocator(20))
 
     # Add a custom legend to the figure
     legend_lines = [Line2D([0], [0], color='tab:red', lw=2, linestyle=line_styles[i]) for i in range(len(h_data))]
