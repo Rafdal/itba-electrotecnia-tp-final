@@ -1,6 +1,6 @@
 import sympy as sp
 import numpy as np
-from plotTools import plotBode
+from plotTools import plotBode, plotBodeMC
 
 def Lambdify(s, expr, symbols, values, s_vals=None):
     for sym, v in zip(symbols, values):
@@ -107,31 +107,51 @@ k_int = -1/(s*R*C)
 k_der_comp = -s*R*C/(1 + s*r*C)
 k_int_comp = -r/(R*(1 + s*r*C))
 
-# opampId = OpAmp(s)
-# opampId.set_ki(k_int)
+opampId = OpAmp(s)
 opamp = OpAmp(s)
-opamp.set_ki(k_int)
+opampId.set_ki(k_der)
+opamp.set_ki(k_der)
 
 opamp.pretty_print()
 
 # Define a logspace vector for the frequency used with the s complex variable
-f = np.logspace(-4, 1, 6000)
+f = np.logspace(4, 6, 3000)
 s_val = 2*np.pi*f*1j
 
 h_fun = opamp.eval([R, C, r], RCr_values)
-h_data = opamp.eval([R, C, r], RCr_values, s_val)
+h_mc = []
+
+
+runs = 50
+for i in range(0, runs):
+    a0_avg = 100000
+    C_avg = 10*1e-9
+    R_avg = 5100
+
+    a0_std = 0.75 * a0_avg
+    C_std = 0.2 * C_avg
+    R_std = 0.1 * R_avg
+
+    opamp.a0_val = np.random.normal(224000, a0_std)
+
+    RCr_values[0] = np.random.normal(R_avg, R_std)
+    RCr_values[1] = np.random.normal(C_avg, C_std)
+    h_data = opamp.eval([R, C, r], RCr_values, s_val)
+    h_mc.append(h_data)
 
 # h_data_id = opampId.eval_ideal([R, C, r], RCr_values, s_val)
 
-Avol = opamp.a0 / (1 + s / opamp.wb)
+# Avol = opamp.a0 / (1 + s / opamp.wb)
 
-Z1 = R
+# Z1 = R
 
-Zi = Z1 / (1 + h_fun/Avol)
+# Zi = Z1 / (1 + h_fun/Avol)
 
 # append a0_val and wb_val to RCr_values
-RCr_values = [*RCr_values, opamp.a0_val, opamp.wb_val]
-Zin_d = Lambdify(s, Zi, [R, C, r, opamp.a0, opamp.wb], RCr_values, s_val)
-Avol_d = Lambdify(s, Avol, [opamp.a0, opamp.wb], [opamp.a0_val, opamp.wb_val], s_val)
+# RCr_values = [*RCr_values, opamp.a0_val, opamp.wb_val]
+# Zin_d = Lambdify(s, Zi, [R, C, r, opamp.a0, opamp.wb], RCr_values, s_val)
+# Avol_d = Lambdify(s, Avol, [opamp.a0, opamp.wb], [opamp.a0_val, opamp.wb_val], s_val)
 
-plotBode([Zin_d, h_data, Avol_d], f)
+# plotBode([h_data, h_data_id], f)
+
+plotBodeMC(h_mc, f)
