@@ -22,6 +22,8 @@ class DataModel():
 
         self.signal = self.signal_list[0]
 
+        self.linear_scale = False
+
         # Create signal options
         self.signalOptions = []
         for s in self.signal_list:
@@ -80,4 +82,8 @@ class DataModel():
                 'name': 'Custom Filter',
                 'callback': lambda: self.filters.append(CustomFilter(self.on_filter_close)),
             },
+            {
+                'name': 'High Order Low Pass',
+                'callback': lambda: self.filters.append(HighOrderLowPass()),
+            }
         ]

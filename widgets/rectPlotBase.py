@@ -9,10 +9,9 @@ import math
 from decimal import Decimal
 
 class RectPlotBase(QWidget):
-    def __init__(self, draggable=True, scale='linear', postFix=None, yInitRange=20.0, xlabel=None, plotLabels=[]):
+    def __init__(self, draggable=True, scaleX='linear', postFix=None, yInitRange=20.0, xlabel=None, plotLabels=[]):
         super().__init__()
 
-        self.scale = scale
         self.postFix = postFix
         self.yInitRange = yInitRange
         self.plotLabels = plotLabels
@@ -20,26 +19,20 @@ class RectPlotBase(QWidget):
         self.x_max = 0
         self.x_min = 10.0
 
+
         # Create a figure and add the plot to it
         self.figure = Figure()
         self.canvas = FigureCanvasQTAgg(self.figure)
         # Set the margins and padding of the subplot
         self.figure.subplots_adjust(top=1.0, right=0.99, bottom=0.18)
         self.ax = self.figure.add_subplot(111)
+        
+        self.set_scaleX(scaleX)
 
         self._dragging = False
-
-        if scale == 'linear':
-            self.ax.xaxis.set_major_formatter(FuncFormatter(self.format_linear))
-        elif scale == 'log10':
-            self.ax.xaxis.set_major_formatter(FuncFormatter(self.format_log10))
-        elif scale == 'log2':
-            self.ax.xaxis.set_major_formatter(FuncFormatter(self.format_log2))
-        else:
-            raise ValueError(f'Invalid scale: {scale}')
         
-        if postFix != None:
-            self.ax.yaxis.set_major_formatter(FuncFormatter(lambda y, t: f'{y:.2f}{postFix}'))
+        if self.postFix != None:
+            self.ax.yaxis.set_major_formatter(FuncFormatter(lambda y, t: f'{y:.2f}{self.postFix}'))
 
         self.ax.grid(True, which='major', axis='both', linestyle='--', linewidth=0.5)
 
@@ -64,6 +57,18 @@ class RectPlotBase(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         self.setLayout(layout)
+
+    def set_scaleX(self, scale):
+        self.scale = scale
+        if scale == 'linear':
+            self.ax.xaxis.set_major_formatter(FuncFormatter(self.format_linear))
+        elif scale == 'log10':
+            self.ax.xaxis.set_major_formatter(FuncFormatter(self.format_log10))
+        elif scale == 'log2':
+            self.ax.xaxis.set_major_formatter(FuncFormatter(self.format_log2))
+        else:
+            raise ValueError(f'Invalid scale: {scale}')
+        self.canvas.draw_idle()
 
     def format_linear(self, x, t):
         # Get the order of magnitude of the value

@@ -255,6 +255,47 @@ class LowPassNotch(Filter):
         self.num = [wz**(-2), (2 * xiz) / wz, 1.0]
         self.den = [w0**(-2), (2.0 * xi0) / w0, 1.0]
 
+import sympy as sp
+class HighOrderLowPass(Filter):
+    def __init__(self, k=2, bw=3.0, w0=0.0):
+        super().__init__()
+        self.key = "HighOrderLowPass"
+        self.name = "High Order Low Pass"
+        self.params = {
+            'w0': Param(w0, 'ω0', 'rad/s', 'log'),
+            'k': Param(k, 'k', 'orden', range=[1, 40], n=1),
+            'bw': Param(bw, 'BW', 'rad/s', 'log', range=[0, 8])
+        }
+        self.compute()
+
+    def compute(self):
+        k = self.params['k'].value
+        bw_v = self.params['bw'].value
+        w0_v = self.params['w0'].value
+
+        if abs(bw_v) <= 1:
+            bw_v = 1
+
+        w0 = sp.symbols('w0', real=True, positive=True)
+        bw = sp.symbols('bw', real=True, positive=True)
+        s = sp.symbols('s', real=False)
+        num = bw**int(k) + w0**int(k)
+        den = (s+w0)**int(k) + bw**int(k)
+        # create a polynomial, get coeffs, simplify, replace w0 and bw and get coeffs again with new values
+        n_poly = sp.Poly(num, s)
+        d_poly = sp.Poly(den, s)
+        d_coeffs = d_poly.all_coeffs()
+        n_coeffs = n_poly.all_coeffs()
+
+        for i in range(0, len(d_coeffs)):
+            d_coeffs[i] = sp.simplify(sp.simplify(d_coeffs[i]).subs({bw: bw_v, w0: w0_v}))
+        for i in range(0, len(n_coeffs)):
+            n_coeffs[i] = sp.simplify(sp.simplify(n_coeffs[i]).subs({bw: bw_v, w0: w0_v}))
+
+        print('n_coeffs = ', n_coeffs[::-1])
+        print('d_coeffs = ', d_coeffs[::-1])
+        self.num = np.array(n_coeffs).astype(np.float64)
+        self.den = np.array(d_coeffs).astype(np.float64)
 
 
 class HighPassNotch(Filter):

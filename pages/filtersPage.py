@@ -32,8 +32,8 @@ class FiltersPage(QWidget):
 
         self.selectedFilter = None
 
-        self.magPlotWidget = FunctionPlotNav("Ganancia [dB]", dragable=True, scale='log10', postFix="dB", yInitRange=200.0, xlabel="Frecuencia [Hz]")
-        self.phasePlotWidget = FunctionPlotNav("Fase [°]", dragable=True, scale='log10', postFix="°", yInitRange=420.0, xlabel="Frecuencia [Hz]")
+        self.magPlotWidget = FunctionPlotNav("Ganancia [dB]", dragable=True, toggleScaleBtn=True,scaleX='log10', postFix="dB", yInitRange=200.0, xlabel="Frecuencia [Hz]")
+        self.phasePlotWidget = FunctionPlotNav("Fase [°]", dragable=True, scaleX='log10', postFix="°", yInitRange=420.0, xlabel="Frecuencia [Hz]")
         self.polesZerosPlotWidget = ZerosPolesPlot(data=self.data)
 
         self.magPlotWidget.setMinimumHeight(300)
@@ -149,6 +149,10 @@ class FiltersPage(QWidget):
         self.data.F = F
         self.data.H = F.transfer()
         _, mag, phase = signal.bode(self.data.H, wlog_x, n)
+        if self.magPlotWidget.scaleY == 'log':
+            pass
+        else:
+            mag = 10**(mag/20.0)
 
         return x, mag, phase
 

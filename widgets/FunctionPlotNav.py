@@ -11,8 +11,8 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QSizePolicy
 
 class FunctionPlotNav(QWidget):
-    def __init__(self, title = 'Title', dragable = False, scale = 'linear', postFix = None, 
-                 yInitRange=20.0, resetScaleButton = True, resetJustY = False, xlabel = None, plotLabels = []):
+    def __init__(self, title = 'Title', dragable = False, scaleX = 'linear', scaleY = 'log', postFix = None, 
+                 yInitRange=20.0, resetScaleButton = True, toggleScaleBtn = False, resetJustY = False, xlabel = None, plotLabels = []):
         super().__init__()
 
         mainLayout = QVBoxLayout(self)
@@ -44,17 +44,37 @@ class FunctionPlotNav(QWidget):
         layout.setContentsMargins(3, 3, 3, 0)
         # layout.setSpacing(10)
 
+        self.scaleY = scaleY
+        self.scaleX = scaleX
 
         # Add Widgets
-        self.rectPlot = RectPlotBase(dragable, scale, postFix=postFix, yInitRange=yInitRange, xlabel=xlabel, plotLabels=plotLabels)
+        self.rectPlot = RectPlotBase(dragable, scaleX, postFix=postFix, yInitRange=yInitRange, xlabel=xlabel, plotLabels=plotLabels)
         self.rectPlot.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        button1 = Button("Autoscale X", None, on_click=lambda: self.rectPlot.autoscale_x())
-        button2 = Button("Autoscale Y", None, on_click=lambda: self.rectPlot.autoscale_y())
+        button1 = Button("Auto X", None, on_click=lambda: self.rectPlot.autoscale_x())
+        button2 = Button("Auto Y", None, on_click=lambda: self.rectPlot.autoscale_y())
        
         button3 = None
         if resetScaleButton:
             button3 = Button("Reset Scale", None, on_click=lambda: self.rectPlot.reset_plot(self.resetJustY))
-        
+        # def toggleXScale():
+        #     if self.rectPlot.scale == 'log10':
+        #         self.rectPlot.set_scale('linear')
+        #         self.scaleX = 'linear'
+        #     else:
+        #         self.rectPlot.set_scale('log10')
+        #         self.scaleX = 'log10'
+        button4 = None
+        if toggleScaleBtn:
+            def toggleYScale():
+                if self.scaleY == 'log':
+                    self.scaleY = 'linear'
+                    self.postFix = None
+                else:
+                    self.scaleY = 'log'
+                    self.postFix = 'dB'
+                self.rectPlot.autoscale_y()
+            button4 = Button("Toggle Y Scale", None, on_click=lambda: toggleYScale())
+
         label = QLabel(title)
         label.setStyleSheet("""
             font-size: 18px;
@@ -68,6 +88,8 @@ class FunctionPlotNav(QWidget):
         hlayout.addWidget(button2)
         if button3 is not None:
             hlayout.addWidget(button3)
+        if button4 is not None:
+            hlayout.addWidget(button4)
 
         titleLayout = QHBoxLayout()
         titleLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
