@@ -85,5 +85,14 @@ class DataModel():
             {
                 'name': 'High Order Low Pass',
                 'callback': lambda: self.filters.append(HighOrderLowPass()),
+            },
+            {
+                'name': 'Second Ord Pole',
+                'callback': lambda: self.filters.append(SecondOrdPole()), 
+            },
+            {
+                'name': 'Second Ord Zero',
+                'callback': lambda: self.filters.append(SecondOrdZero()), 
             }
+
         ]

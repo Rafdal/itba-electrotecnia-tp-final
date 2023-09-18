@@ -224,6 +224,47 @@ class NotchFilter(Filter):
         self.num = [w0**(-2), 0.0, 1.0]
         self.den = [w0**(-2), (2.0 * xi) / w0, 1.0]
         
+class SecondOrdPole(Filter):
+    def __init__(self, w0=600.0, Q=0.5):
+        super().__init__()
+        self.key = "SecondOrdPole"
+        self.name = "SecondOrdPole"
+        self.params = {
+            'w0': Param(w0, 'ω0', 'rad/s', 'log'),
+            'Q': Param(Q, 'Q', '-', range=[-3.0, 4.0], scale='log')
+        }
+        self.compute()
+
+    def compute(self):
+        w0 = self.params['w0'].value
+        q = self.params['Q'].value
+
+        if abs(w0) <= 1e-10:
+            w0 = 1e-10
+
+        self.num = [1.0]
+        self.den = [w0**(-2), 1 / (w0*q), 1.0]
+
+class SecondOrdZero(Filter):
+    def __init__(self, w0=600.0, Q=0.5):
+        super().__init__()
+        self.key = "SecondOrdZero"
+        self.name = "SecondOrdZero"
+        self.params = {
+            'w0': Param(w0, 'ω0', 'rad/s', 'log'),
+            'Q': Param(Q, 'Q', '-', range=[-3.0, 4.0], scale='log')
+        }
+        self.compute()
+
+    def compute(self):
+        w0 = self.params['w0'].value
+        q = self.params['Q'].value
+
+        if abs(w0) <= 1e-10:
+            w0 = 1e-10
+
+        self.num = [w0**(-2), 1 / (w0*q), 1.0]
+        self.den = [1.0]
 
 class LowPassNotch(Filter):
     def __init__(self, w0=900.0, wz=1850.0, xi0=0.4, xiz=0.5):
